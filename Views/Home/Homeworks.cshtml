@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Homeworks";
+}
+
+<style>
+    .homework-block {
+        margin-left: 50px;
+        margin-top: 20px;
+    }
+    td {
+        border: 1px solid black;
+        padding: 5px 10px;
+    }
+    pre {
+        margin: 0;
+    }
+</style>
+
+<p>
+    Завдання: Реалізувати відображення прайс-листу (створеного на занятті)
+    у вигляді HTML-таблиці:
+    <pre>
+        -----------------------------
+        1 | Кулька ялинкова | 29.90
+        ....
+    </pre>
+    Забезпечити виведення двох знаків після коми (у ціні), а також
+    нумерацію товарів (перший рядок таблиці)
+    У відповідь на ДЗ прикласти посилання на репозиторій, у репозиторії
+    додати скріншоти роботи проєкту.
+</p>
+
+<div class="homework-block">
+    @{
+        int counter = 1;
+
+        Dictionary<String, double> priceList = new(){
+        {"Кулька ялинкова", 29.90},
+        {"Серпантин", 45.00},
+        {"Вогні бенгальські", 84.40},
+        {"Гірлянда 3м", 129.90},
+        {"Ялинка штучна 1.5м", 1229.90}
+        };
+    }
+
+    <table>
+        @foreach (var (name, price) in priceList)
+        {
+            <tr>
+                <td>@counter</td>
+                <td>@name</td>
+                <td>@price.ToString("F2")</td>
+            </tr>
+            counter++;
+        }
+    </table>
+</div>

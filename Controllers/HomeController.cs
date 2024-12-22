@@ -22,6 +22,10 @@ namespace ASP_P22.Controllers
         {
             return View();
         }
+        public IActionResult Homeworks()
+        {
+            return View();
+        }
         public IActionResult Razor()
         {
             return View();

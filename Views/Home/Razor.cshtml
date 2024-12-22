@@ -2,13 +2,6 @@
     ViewData["Title"] = "Razor";
 }
 
-<style>
-    td {
-        border: 1px solid black;
-        padding: 5px 10px;
-    }
-</style>
-
 <div class="text-center">
     <h1 class="display-4">Технологія Razor</h1>
 </div>
@@ -99,27 +92,3 @@
     Вирази у т.ч. для циклової змінної, можна вживати для контенту тегів, так і для значень атрибутів, зокрема стильових.
     Виразами не можна формувати імена тегів та імена атрибутів.
 </p>
-
-@{
-    int counter = 1;
-
-    Dictionary<String, double> priceList = new(){
-        {"Кулька ялинкова", 29.90},
-        {"Серпантин", 45.00},
-        {"Вогні бенгальські", 84.40},
-        {"Гірлянда 3м", 129.90},
-        {"Ялинка штучна 1.5м", 1229.90}
-    };
-}
-
-<table>
-    @foreach (var (name, price) in priceList)
-    {
-        <tr>
-            <td>@counter</td>
-            <td>@name</td>
-            <td>@price.ToString("F2")</td>
-        </tr>
-        counter++;
-    }
-</table>
