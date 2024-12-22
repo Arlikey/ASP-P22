@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Introduction";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Вступ до ASP.NET Core</h1>
+</div>
+
+<p>
+    ASP (Active Server Page) - це технологія створення веб-застосунків з активною серверною частиною. Існує у формі різних шаблонів проєктів, зокрема, MVC (Model-View-Controller).
+</p>
+
+<p>
+    Особливістю ASP MVC Core є те, що ресурси проєкту св'язуються між собою за іменами. Наприклад, запит "/Home/Privacy" призводить до того, що
+</p>
+
+<ul>
+    <li>Здійснюється пошук класу [Home]Controller (де Home - перша складова запиту)</li>
+    <li>Вже у знайденому класі шукається метод Privacy() (Privacy - друга частина запиту)</li>
+    <li>Для відображення шукається файл у папці Views/Home/Privacy.cshtml (також за складовими запиту)</li>
+    <li>Знайдені дані підставляються до шаблону _Layout.cshtml (замість RenderBody)</li>
+</ul>
