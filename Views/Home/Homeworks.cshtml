@@ -1,4 +1,7 @@
-﻿@{
+﻿@using ASP_P22.Services.Time
+@inject ITimeService timeService
+
+@{
     ViewData["Title"] = "Homeworks";
 }
 
@@ -6,6 +9,7 @@
     .homework-block {
         margin-left: 50px;
         margin-top: 20px;
+        margin-bottom: 40px;
     }
     td {
         border: 1px solid black;
@@ -54,4 +58,20 @@
             counter++;
         }
     </table>
+</div>
+
+<p>
+    Завдання: Створити сервіс часу, який дозволяє:
+    <pre>
+        а) повернути поточну мітку часу як timestamp (long);
+        б) повернути поточну мітку часу як SQL-формат (YYYY-MM-DD HH:MM:SS);
+        в) розпарсити дату, передану в SQL-форматі -- повернути поточну мітку часу як timestamp (long);
+    </pre>
+</p>
+
+
+<div class="homework-block">
+    <p>Timestamp: @timeService.GetCurrentDateTimestamp()</p>
+    <p>SQL-формат: @timeService.GetCurrentDateSqlFormat()</p>
+    <p>Розпарсена дата: @timeService.ParseSqlFormatToTimestamp(timeService.GetCurrentDateSqlFormat())</p>
 </div>

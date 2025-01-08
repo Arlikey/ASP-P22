@@ -1,7 +1,15 @@
+using ASP_P22.Services.Hash;
+using ASP_P22.Services.Random;
+using ASP_P22.Services.Time;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+// реєструємо власні сервіси у контейнері builder.Services
+builder.Services.AddSingleton<IRandomService, AbcRandomService>();
+builder.Services.AddSingleton<IHashService, Md5HashService>();
+builder.Services.AddSingleton<ITimeService, TimeService>();
 
 var app = builder.Build();
 

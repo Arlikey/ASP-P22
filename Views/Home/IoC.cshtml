@@ -1,0 +1,97 @@
+﻿@* Точка інжекції - запит до контейнера на референс *@
+@using ASP_P22.Services.Random
+@inject IRandomService randomSevice
+@{
+    ViewData["Title"] = "IoC";
+    IRandomService _randomSevice = (IRandomService)ViewData["_randomService"]!;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Інверсія управління</h1>
+</div>
+
+<p>
+    <b>Не плутати!</b>
+</p>
+<ul>
+    <li>
+        <b>DIP</b>, Dependency Inversion Prinsciple (SOLID) - принцип, згідно з яким типізація залежностей має бути максимально
+        абстрактна.
+    </li>
+    <li>
+        <b>IoC</b>, Inversion of Control - шаблон проєктування архітектурна система, згідно з якою управління життєвим циклом
+        об'єктів покладається на окремий модуль.
+    </li>
+    <li>
+        <b>DI</b>, Dependency Injection - це механізм впровадження референсів до об'єктів, які від них залежать.
+    </li>
+</ul>
+<pre>
+    a) [hash, zip] - у кожного об'єкта
+       [hash, zip]   своя реалізація класу
+
+    b) [?, ?]   &rarr;  |  hash  |  &rarr;  [hash, zip] - у кожного об'єкта
+       [?, ?]   &rarr;  |   zip  |  &rarr;  [hash, zip]   посилання на однакові реалізації
+</pre>
+
+<p>
+    Робота з інверсією управління складається з наступних етапів:
+</p>
+<ul>
+    <li>Створюємо сервіс - клас, що відповідає за оброблення данних. При створенні користуємось DIP, тобто спочатку створюємо інтерфейс
+        , а потім клас, що його імплементує;</li>
+    <li>Реєструємо сервіс у контейнері залежностей</li>
+    <li>Інжектуємо сервіс (утворюємо точки інжекції)<br/>
+        У Razor за допомогою ключового слова <code>&commat;inject</code><br/>
+        У контролері - через конструктор
+    </li>
+    <li>
+        Тестуємо службу після підключення
+        <br/>
+        <code>&commat;randomService.FileName()=@randomSevice.FileName()</code>
+        <br />
+        <code>&commat;_randomService.FileName()=@_randomSevice.FileName()</code>
+    </li>
+</ul>
+<h2>
+    Scope - область існування
+</h2>
+<p>
+    При реєстрації служби необхідно зазначити її життєвий цикл (Scope).
+    Це керує поведінкою при інжекції служби у нову точку - створювати новий об'єкт чи використати попередньо створений.
+</p>
+<p>
+    Хеш-код об'єкта з контролера: @_randomSevice.GetHashCode()
+    <br/>
+    Хеш-код об'єкта з представлення: @randomSevice.GetHashCode()
+</p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Scope</th>
+            <th>При новій інжекції</th>
+            <th>При оновлені сторінки</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>AddSingleton</td>
+            <td>Не змінюється</td>
+            <td>Не змінюється</td>
+        </tr>
+        <tr>
+            <td>AddScoped</td>
+            <td>Не змінюється</td>
+            <td>Змінюється</td>
+        </tr>
+        <tr>
+            <td>AddTransient</td>
+            <td>Змінюється</td>
+            <td>Змінюється</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>
+    md5Hash = @ViewData["md5Hash"]
+</p>
