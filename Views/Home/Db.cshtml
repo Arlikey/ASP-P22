@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Data base";
+}
+
+<div class="text-center">
+    <h1 class="display-4">База даних</h1>
+</div>
+
+<ul>
+    <li>
+        Перевіряємо наявність та доступність СУБД - MSVS Installer - [v] Data Services
+    </li>
+    <li>
+        Встановлюємо драйвери (конектори, бібліотеки) для роботи з відповідною СУБД та технологією (Entity Framework Core)
+        На прикладі MS SQL Server, необхідно встановити наступні пакети NuGet:
+        <ul>
+            <li>Microsoft.EntityFrameworkCore</li>
+            <li>Microsoft.EntityFrameworkCore.SqlServer</li>
+            <li>Microsoft.EntityFrameworkCore.</li>
+        </ul>
+    </li>
+    <li>
+        Обираємо підхід: Code First / Date First у залежності від того чи наявна вже БД, чи ми створюємо нову.
+        Нові проєкти базуються на Code First
+    </li>
+    <li>
+        Утворюємо рядок підключення. На початку роботи - це рядок неіснуючої БД.
+        У файлі <code>appsettings.json</code> у розділі <code>ConnectionStrings</code> зазначаємо строку підключення до БД.
+    </li>
+    <li>Підключаємо контекст даних як сервіс, передаємо йому рядок підключення.</li>
+    <li>
+        Створюємо контекст даних. Зазвичай він зберігається в окремій директорії.
+        Описуємо сутності (Entities), додаємо до контексту їх налаштування у <code>OnModelCreating</code>...
+    </li>
+    <li>Відкриваємо консоль NuGet. Створюємо міграцію <code>Add-Migration</code>, застосовуємо міграцію <code>Update-Database</code></li>
+    <li>Перевіряємо успішність шляхом підключення до БД через студію.</li>
+    <li>
+        Інжектуємо DataContext у контролери за схемою, як і сервіси.
+        Контроль: <i>@ViewData["db-info"]</i>
+    </li>
+</ul>

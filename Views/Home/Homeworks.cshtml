@@ -75,3 +75,18 @@
     <p>SQL-формат: @timeService.GetCurrentDateSqlFormat()</p>
     <p>Розпарсена дата: @timeService.ParseSqlFormatToTimestamp(timeService.GetCurrentDateSqlFormat())</p>
 </div>
+
+<p>
+    Завдання:
+    <pre>
+        1. Інжектувати сервіс DK до контролера, одержати його результат
+           для тестових даних, вивести на сторінці сайту.
+        2. Імплементувати другу функцію обчислення DK (5.2 PBKDF2) зі 
+           стандарту RFC2898 (https://datatracker.ietf.org/doc/html/rfc2898)
+    </pre>
+</p>
+
+<div class="homework-block">
+    <p>DK PBKDF1 PASS1: @ViewData["pbkdf1_pass1"]</p>
+    <p>DK PBKDF1 PASS2: @ViewData["pbkdf1_pass2"]</p>
+</div>

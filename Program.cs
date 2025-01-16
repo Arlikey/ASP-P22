@@ -1,6 +1,9 @@
+using ASP_P22.Data;
 using ASP_P22.Services.Hash;
+using ASP_P22.Services.Kdf;
 using ASP_P22.Services.Random;
 using ASP_P22.Services.Time;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IRandomService, AbcRandomService>();
 builder.Services.AddSingleton<IHashService, Md5HashService>();
 builder.Services.AddSingleton<ITimeService, TimeService>();
+builder.Services.AddSingleton<IKdfService, PbKdf1Service>();
+
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -27,6 +43,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

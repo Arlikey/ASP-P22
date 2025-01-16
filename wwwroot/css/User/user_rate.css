@@ -1,0 +1,37 @@
+﻿h1 {
+    margin-bottom: 5%;
+}
+
+.user-rate-block {
+    display: flex;
+    align-items: center;
+}
+
+.btn {
+    margin-top: 3%;
+}
+
+.form-label {
+    font-size: 1.3em;
+    margin-right: 2%;
+    margin-bottom: 0;
+}
+
+.star-rate {
+    direction: rtl;
+}
+
+.star-rate input[type="radio"] {
+    display: none;
+}
+
+.star-rate label {
+    font-size: 2em;
+    cursor: pointer;
+}
+
+.star-rate label:hover,
+.star-rate label:hover ~ label,
+.star-rate input[type="radio"]:checked ~ label {
+    color: orange;
+}
