@@ -1,4 +1,5 @@
 using ASP_P22.Data;
+using ASP_P22.Middleware.Auth;
 using ASP_P22.Services.Hash;
 using ASP_P22.Services.Kdf;
 using ASP_P22.Services.Random;
@@ -22,7 +23,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -45,6 +46,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.UseSession();
+
+app.UseAuthSession();
 
 app.MapControllerRoute(
     name: "default",
