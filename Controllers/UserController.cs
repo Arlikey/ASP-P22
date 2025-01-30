@@ -6,19 +6,25 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace ASP_P22.Controllers
 {
-    public class UserController(DataContext dataContext, IKdfService kdfService,
-        IRandomService randomService, IConfiguration configuration) : Controller
+    public class UserController(
+        DataContext dataContext, 
+        IKdfService kdfService,
+        IRandomService randomService, 
+        IConfiguration configuration,
+        ILogger<UserController> logger) : Controller
     {
         private readonly DataContext _dataContext = dataContext;
         private readonly IKdfService _kdfService = kdfService;
         private readonly IRandomService _randomService = randomService;
         private readonly IConfiguration _configuration = configuration;
+        private readonly ILogger<UserController> _logger = logger;
         public IActionResult Index()
         {
             UserSignUpPageModel pageModel = new();
@@ -40,7 +46,11 @@ namespace ASP_P22.Controllers
                     {
                         Id = Guid.NewGuid(),
                         Name = userSignUpFormModel!.UserName,
-                        Email = userSignUpFormModel.UserEmail
+                        Email = userSignUpFormModel.UserEmail,
+
+                        Phone = userSignUpFormModel.UserPhone,
+                        WorkPosition = userSignUpFormModel.UserPosition,
+                        PhotoUrl = userSignUpFormModel.UserPhotoSavedName
                     };
                     String salt = _randomService.FileName();
                     var (iterationCount, dkLength) = KdfSettings();
@@ -59,6 +69,20 @@ namespace ASP_P22.Controllers
                 }
                 HttpContext.Session.Remove("formModel");
             }
+            return View(pageModel);
+        }
+        public ViewResult Profile()
+        {
+            UserProfilePageModel pageModel = new()
+            {
+                PhotoUrl = "https://img.icons8.com/bubbles/100/000000/user.png",
+                Name = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "",
+                Email = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? "",
+                Phone = "380992019714",
+                Recent = "Razor",
+                MostViewed = "ASP",
+                Role = "Web Designer"
+            };
             return View(pageModel);
         }
         [HttpGet]
@@ -96,107 +120,17 @@ namespace ASP_P22.Controllers
                 JsonSerializer.Serialize(access.User));
             return Json("Ok");
         }  
-
-        private JsonResult AuthError(string message)
+        public RedirectToActionResult SignUp([FromForm] UserSignUpFormModel formModel)
         {
-            Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return Json(message);
-        }
-
-        private (uint, uint) KdfSettings()
-        {
-            var kdf = _configuration.GetSection("Kdf");
-            return (
-                kdf.GetSection("IterationCount").Get<uint>(), 
-                kdf.GetSection("DkLength").Get<uint>()
-            );
-        }
-        public IActionResult SignUp([FromForm] UserSignUpFormModel userSignUpFormModel)
-        {
+            if(formModel.UserPhoto != null)
+            {
+                formModel.UserPhotoSavedName = formModel.UserPhoto.FileName;
+                _logger.LogInformation("File uploaded {name}", formModel.UserPhoto.FileName);
+            }
+            
             HttpContext.Session.SetString("formModel",
-                JsonSerializer.Serialize(userSignUpFormModel));
+                JsonSerializer.Serialize(formModel));
             return RedirectToAction("Index");
-        }
-        private (bool, Dictionary<string, string>) ValidateUserSignUpModel(UserSignUpFormModel? userSignUpFormModel) 
-        {
-            bool status = true;
-            Dictionary<string, string> errors = [];
-
-            if(userSignUpFormModel == null)
-            {
-                status = false;
-                errors["ModelState"] = "Модель не передано.";
-                return (status, errors);
-            }
-            if (string.IsNullOrEmpty(userSignUpFormModel.UserName))
-            {
-                status = false;
-                errors["UserName"] = "Ім'я не може бути порожнім.";
-            }
-            else if(!Regex.IsMatch(userSignUpFormModel.UserName, "^[A-ZА-Я].*"))
-            {
-                status = false;
-                errors["UserName"] = "Ім'я має починатися з великої літери.";
-            }
-
-
-            if (string.IsNullOrEmpty(userSignUpFormModel.UserEmail))
-            {
-                status = false;
-                errors["UserEmail"] = "Email не може бути порожнім.";
-            }
-            else if (!Regex.IsMatch(userSignUpFormModel.UserEmail, @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"))
-            {
-                status = false;
-                errors["UserEmail"] = "Email не відповідає шаблону.";
-            }
-
-
-            if (string.IsNullOrEmpty(userSignUpFormModel.UserLogin))
-            {
-                status = false;
-                errors["UserLogin"] = "Логін не може бути порожнім.";
-            }
-            else if (userSignUpFormModel.UserLogin.Contains(':'))
-            {
-                status = false;
-                errors["UserLogin"] = "Логін не повинен містити символ ':'.";
-            }
-            else if (_dataContext.Accesses.Count(a => a.Login == userSignUpFormModel.UserLogin) > 0) 
-            {
-                status = false;
-                errors["UserLogin"] = "Користувач з таким логіном вже існує.";
-            }
-
-
-            if (string.IsNullOrEmpty(userSignUpFormModel.Password1))
-            {
-                status = false;
-                errors["Password1"] = "Пароль не може бути порожнім.";
-            }
-            else if (userSignUpFormModel.Password1.Length < 8 || userSignUpFormModel.Password1.Length > 16)
-            {
-                status = false;
-                errors["Password1"] = "Пароль повинен містити від 8 до 16 символів.";
-            } 
-            else if (!Regex.IsMatch(userSignUpFormModel.Password1, @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*]).*$"))
-            {
-                status = false;
-                errors["Password1"] = "Пароль повинен містити принаймні одну літеру, одну цифру та один спеціальний символ (!@#$%^&*).";
-            }
-
-
-            if (string.IsNullOrEmpty(userSignUpFormModel.Password2))
-            {
-                status = false;
-                errors["Password2"] = "Пароль не може бути порожнім.";
-            }
-            else if (string.Compare(userSignUpFormModel.Password1, userSignUpFormModel.Password2) != 0)
-            {
-                status = false;
-                errors["Password2"] = "Паролі не співпадають.";
-            }
-            return (status, errors);
         }
         public IActionResult Review() 
         {
@@ -209,11 +143,145 @@ namespace ASP_P22.Controllers
             }
             return View();
         }
-        public IActionResult LeftReview([FromForm] UserReviewFormModel userReviewFormModel) 
+        public RedirectToActionResult LeftReview([FromForm] UserReviewFormModel userReviewFormModel) 
         {
             HttpContext.Session.SetString("reviewModel",
                 JsonSerializer.Serialize(userReviewFormModel));
             return RedirectToAction("Review");
+        }
+        private (bool, Dictionary<string, string>) ValidateUserSignUpModel(UserSignUpFormModel? formModel) 
+        {
+            bool status = true;
+            Dictionary<string, string> errors = [];
+
+            if(formModel == null)
+            {
+                status = false;
+                errors["ModelState"] = "Модель не передано.";
+                return (status, errors);
+            }
+            if (string.IsNullOrEmpty(formModel.UserName))
+            {
+                status = false;
+                errors["UserName"] = "Ім'я не може бути порожнім.";
+            }
+            else if(!Regex.IsMatch(formModel.UserName, "^[A-ZА-Я].*"))
+            {
+                status = false;
+                errors["UserName"] = "Ім'я має починатися з великої літери.";
+            }
+
+
+            if (string.IsNullOrEmpty(formModel.UserEmail))
+            {
+                status = false;
+                errors["UserEmail"] = "Email не може бути порожнім.";
+            }
+            else if (!Regex.IsMatch(formModel.UserEmail, @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"))
+            {
+                status = false;
+                errors["UserEmail"] = "Email не відповідає шаблону.";
+            }
+
+
+            if (!string.IsNullOrEmpty(formModel.UserPhone))
+            {
+                if (!Regex.IsMatch(formModel.UserPhone, @"^\+?\d{10,13}$"))
+                {
+                    status = false;
+                    errors["UserPhone"] = "Номер телефону не відповідає стандартному шаблону.";
+                }
+            }
+
+
+            if (!string.IsNullOrEmpty(formModel.UserPosition))
+            {
+                if (formModel.UserPosition.Length < 3)
+                {
+                    status = false;
+                    errors["UserPosition"] = "Посада не може бути коротшою за 3 символи.";
+                }
+                else if (char.IsDigit(formModel.UserPosition[0]))
+                {
+                    status = false;
+                    errors["UserPosition"] = "Посада не повинна починатися з цифри.";
+                }
+                else if (Regex.IsMatch(formModel.UserPosition, @"[^A-Za-zА-Яа-я0-9\s-]"))
+                {
+                    status = false;
+                    errors["UserPosition"] = "Посада не повинна містити спеціальні символи (окрім '-').";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(formModel.UserPhotoSavedName))
+            {
+                string fileExtension = Path.GetExtension(formModel.UserPhotoSavedName);
+                List<string> availableExtensions = [".jpg", ".png", ".webp", ".jpeg"];
+                if (!availableExtensions.Contains(fileExtension))
+                {
+                    status = false;
+                    errors["UserPhoto"] = "Файл повинен мати розширення .jpg, .png, .webp, .jpeg.";
+                }
+            }
+
+
+            if (string.IsNullOrEmpty(formModel.UserLogin))
+            {
+                status = false;
+                errors["UserLogin"] = "Логін не може бути порожнім.";
+            }
+            else if (formModel.UserLogin.Contains(':'))
+            {
+                status = false;
+                errors["UserLogin"] = "Логін не повинен містити символ ':'.";
+            }
+            else if (_dataContext.Accesses.Count(a => a.Login == formModel.UserLogin) > 0) 
+            {
+                status = false;
+                errors["UserLogin"] = "Користувач з таким логіном вже існує.";
+            }
+
+
+            if (string.IsNullOrEmpty(formModel.Password1))
+            {
+                status = false;
+                errors["Password1"] = "Пароль не може бути порожнім.";
+            }
+            else if (formModel.Password1.Length < 8 || formModel.Password1.Length > 16)
+            {
+                status = false;
+                errors["Password1"] = "Пароль повинен містити від 8 до 16 символів.";
+            } 
+            else if (!Regex.IsMatch(formModel.Password1, @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*]).*$"))
+            {
+                status = false;
+                errors["Password1"] = "Пароль повинен містити принаймні одну літеру, одну цифру та один спеціальний символ (!@#$%^&*).";
+            }
+
+            if (string.IsNullOrEmpty(formModel.Password2))
+            {
+                status = false;
+                errors["Password2"] = "Пароль не може бути порожнім.";
+            }
+            else if (string.Compare(formModel.Password1, formModel.Password2) != 0)
+            {
+                status = false;
+                errors["Password2"] = "Паролі не співпадають.";
+            }
+            return (status, errors);
+        }
+        private JsonResult AuthError(string message)
+        {
+            Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Json(message);
+        }
+        private (uint, uint) KdfSettings()
+        {
+            var kdf = _configuration.GetSection("Kdf");
+            return (
+                kdf.GetSection("IterationCount").Get<uint>(),
+                kdf.GetSection("DkLength").Get<uint>()
+            );
         }
     }
 }

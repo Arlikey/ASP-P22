@@ -17,7 +17,7 @@
 }
 else
 {
-    <form asp-action="SignUp">
+    <form asp-action="SignUp" method="post" enctype="multipart/form-data">
         <div class="row">
             <div class="col">
                 <div class="input-group mb-3">
@@ -58,6 +58,43 @@ else
         <div class="row">
             <div class="col">
                 <div class="input-group mb-3">
+                    <span class="input-group-text" id="phone-addon"><i class="bi bi-telephone"></i></span>
+                    @{
+                        hasError = validationStatus == false && (errors?.ContainsKey("UserPhone") ?? false);
+                    }
+                    <input name="UserPhone" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+                           value="@formModel?.UserPhone"
+                           placeholder="Телефон" aria-label="Phone" aria-describedby="phone-addon">
+                    @if (hasError)
+                    {
+                        <div class="invalid-feedback">
+                            @errors?["UserPhone"]
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="position-addon"><i class="bi bi-person-vcard"></i></span>
+                    @{
+                        hasError = validationStatus == false && (errors?.ContainsKey("UserPosition") ?? false);
+                    }
+                    <input name="UserPosition" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+                           value="@formModel?.UserPosition"
+                           placeholder="Посада" aria-label="Position" aria-describedby="position-addon">
+                    @if (hasError)
+                    {
+                        <div class="invalid-feedback">
+                            @errors?["UserPosition"]
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="input-group mb-3">
                     <span class="input-group-text" id="login-addon"><i class="bi bi-key"></i></span>
                     @{
                         hasError = validationStatus == false && (errors?.ContainsKey("UserLogin") ?? false);
@@ -76,7 +113,16 @@ else
             <div class="col">
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="inputGroupFile01"><i class="bi bi-person-square"></i></label>
-                    <input type="file" class="form-control" id="inputGroupFile01">
+                    @{
+                        hasError = validationStatus == false && (errors?.ContainsKey("UserPhoto") ?? false);
+                    }
+                    <input type="file" name="UserPhoto" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")" id="inputGroupFile01">
+                    @if (hasError)
+                    {
+                        <div class="invalid-feedback">
+                            @errors?["UserPhoto"]
+                        </div>
+                    }
                 </div>
             </div>
         </div>

@@ -1,5 +1,6 @@
 ﻿using ASP_P22.Data.Entities;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace ASP_P22.Middleware.Auth
@@ -19,7 +20,17 @@ namespace ASP_P22.Middleware.Auth
             else if (context.Session.Keys.Contains("authUser"))
             {
                 Data.Entities.User user = JsonSerializer.Deserialize<User>(context.Session.GetString("authUser")!)!;
-                context.Items["authUser"] = user;
+
+                context.User = new System.Security.Claims.ClaimsPrincipal(
+                    new ClaimsIdentity(
+                        [
+                            new Claim(ClaimTypes.Sid, user.Id.ToString()),
+                            new Claim(ClaimTypes.Name, user.Name),
+                            new Claim(ClaimTypes.Email, user.Email)
+                        ],
+                        nameof(AuthSessionMiddleware)
+                    )
+                );
             }
             await _next(context);
         }

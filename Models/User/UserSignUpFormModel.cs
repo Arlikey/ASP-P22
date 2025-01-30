@@ -1,4 +1,6 @@
-﻿namespace ASP_P22.Models.User
+﻿using System.Text.Json.Serialization;
+
+namespace ASP_P22.Models.User
 {
     public class UserSignUpFormModel
     {
@@ -8,5 +10,10 @@
         public string Password1 { get; set; } = null!;
         public string Password2 { get; set; } = null!;
         
+        public string UserPhone { get; set; } = null!;
+        public string UserPosition { get; set; } = null!;
+        [JsonIgnore]
+        public IFormFile UserPhoto { get; set; } = null!;
+        public string UserPhotoSavedName { get; set; } = null!;
     }
 }
