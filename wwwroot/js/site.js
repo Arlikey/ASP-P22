@@ -51,5 +51,16 @@
     }
 })
 
-const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+document.querySelectorAll('input[name="SlugOption"]').forEach(radio => {
+    radio.addEventListener('change', function () {
+        const customInput = document.getElementById('customSlugInput');
+        if (this.value === 'custom') {
+            customInput.style.display = 'block';
+        } else {
+            customInput.style.display = 'none';
+        }
+    });
+});

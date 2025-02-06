@@ -3,6 +3,8 @@ using ASP_P22.Middleware.Auth;
 using ASP_P22.Services.Hash;
 using ASP_P22.Services.Kdf;
 using ASP_P22.Services.Random;
+using ASP_P22.Services.Slugify;
+using ASP_P22.Services.Storage;
 using ASP_P22.Services.Time;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +17,8 @@ builder.Services.AddSingleton<IRandomService, AbcRandomService>();
 builder.Services.AddSingleton<IHashService, Md5HashService>();
 builder.Services.AddSingleton<ITimeService, TimeService>();
 builder.Services.AddSingleton<IKdfService, PbKdf1Service>();
+builder.Services.AddSingleton<IStorageService, LocalStorageService>();
+builder.Services.AddSingleton<ISlugifyService, TrasliterationSlugifyService>();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));

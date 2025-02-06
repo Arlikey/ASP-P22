@@ -3,6 +3,7 @@
     bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
     string? userName = isAuthenticated ? Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value : null;
     char firstLetter = userName?[0] ?? 'N';
+    string? userSlug = isAuthenticated ? Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value : null;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -38,7 +39,7 @@
                         <a class="btn btn-outline-dark" asp-controller="User" asp-action="Review"><i class="bi bi-chat-left-text"></i></a>
                     @if (isAuthenticated)
                     {
-                            <a asp-controller="User" asp-action="Profile" 
+                            <a asp-controller="User" asp-action="Profile" asp-route-id="@userSlug"
                             id="user-icon" data-bs-toggle="tooltip" data-bs-placement="bottom"
                             data-bs-title="@(userName)">@(firstLetter)</a>
                             <a href="?logout" class="btn btn-outline-danger">

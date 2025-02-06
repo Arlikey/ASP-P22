@@ -1,186 +1,222 @@
 ﻿@using ASP_P22.Models.User
 @model UserSignUpPageModel
 @{
-    ViewData["Title"] = "User Page";
-    bool? validationStatus = Model.ValidationStatus;
-    Dictionary<string, string>? errors = Model.Errors;
-    UserSignUpFormModel? formModel = Model.FormModel;
+	ViewData["Title"] = "User Page";
+	bool? validationStatus = Model.ValidationStatus;
+	Dictionary<string, string>? errors = Model.Errors;
+	UserSignUpFormModel? formModel = Model.FormModel;
 }
 
+<link rel="stylesheet" href="~/css/User/slug-selector.css" asp-append-version="true" />
+
 <div class="text-center">
-    <h1 class="display-4">Реєстрація нового користувача</h1>
+	<h1 class="display-4">Реєстрація нового користувача</h1>
 </div>
 
-<hr/>
-@if(Model.User != null){
-    <h2>Реєстрація пройшла успішно!</h2>
+<hr />
+@if (Model.User != null)
+{
+	<h2>Реєстрація пройшла успішно!</h2>
 }
 else
 {
-    <form asp-action="SignUp" method="post" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="name-addon"><i class="bi bi-person-vcard"></i></span>
-                    @{
-                        bool hasError = validationStatus == false && (errors?.ContainsKey("UserName") ?? false);
-                    }
-                    <input name="UserName" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
-                           value="@formModel?.UserName"
-                           placeholder="Ім'я користувача" aria-label="Username" aria-describedby="name-addon">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["UserName"]
-                        </div>
-                    }
-                </div>
-            </div>
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="email-addon"><i class="bi bi-envelope-at"></i></span>
-                    @{
-                        hasError = validationStatus == false && (errors?.ContainsKey("UserEmail") ?? false);
-                    }
-                    <input name="UserEmail" type="email" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
-                           value="@formModel?.UserEmail"
-                           placeholder="E-mail" aria-label="Email" aria-describedby="email-addon">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["UserEmail"]
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+	<form asp-action="SignUp" method="post" enctype="multipart/form-data">
+		<div class="row">
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="name-addon"><i class="bi bi-person-vcard"></i></span>
+					@{
+						bool hasError = validationStatus == false && (errors?.ContainsKey("UserName") ?? false);
+					}
+					<input name="UserName" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   value="@formModel?.UserName"
+						   placeholder="Ім'я користувача" aria-label="Username" aria-describedby="name-addon">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["UserName"]
+						</div>
+					}
+				</div>
+			</div>
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="email-addon"><i class="bi bi-envelope-at"></i></span>
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("UserEmail") ?? false);
+					}
+					<input name="UserEmail" type="email" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   value="@formModel?.UserEmail"
+						   placeholder="E-mail" aria-label="Email" aria-describedby="email-addon">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["UserEmail"]
+						</div>
+					}
+				</div>
+			</div>
+		</div>
 
-        <div class="row">
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="phone-addon"><i class="bi bi-telephone"></i></span>
-                    @{
-                        hasError = validationStatus == false && (errors?.ContainsKey("UserPhone") ?? false);
-                    }
-                    <input name="UserPhone" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
-                           value="@formModel?.UserPhone"
-                           placeholder="Телефон" aria-label="Phone" aria-describedby="phone-addon">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["UserPhone"]
-                        </div>
-                    }
-                </div>
-            </div>
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="position-addon"><i class="bi bi-person-vcard"></i></span>
-                    @{
-                        hasError = validationStatus == false && (errors?.ContainsKey("UserPosition") ?? false);
-                    }
-                    <input name="UserPosition" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
-                           value="@formModel?.UserPosition"
-                           placeholder="Посада" aria-label="Position" aria-describedby="position-addon">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["UserPosition"]
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+		<div class="row">
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="phone-addon"><i class="bi bi-telephone"></i></span>
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("UserPhone") ?? false);
+					}
+					<input name="UserPhone" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   value="@formModel?.UserPhone"
+						   placeholder="Телефон" aria-label="Phone" aria-describedby="phone-addon">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["UserPhone"]
+						</div>
+					}
+				</div>
+			</div>
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="position-addon"><i class="bi bi-person-vcard"></i></span>
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("UserPosition") ?? false);
+					}
+					<input name="UserPosition" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   value="@formModel?.UserPosition"
+						   placeholder="Посада" aria-label="Position" aria-describedby="position-addon">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["UserPosition"]
+						</div>
+					}
+				</div>
+			</div>
+		</div>
 
-        <div class="row">
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="login-addon"><i class="bi bi-key"></i></span>
-                    @{
-                        hasError = validationStatus == false && (errors?.ContainsKey("UserLogin") ?? false);
-                    }
-                    <input name="UserLogin" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
-                           value="@formModel?.UserLogin"
-                           placeholder="Логін" aria-label="Login" aria-describedby="login-addon">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["UserLogin"]
-                        </div>
-                    }
-                </div>
-            </div>
-            <div class="col">
-                <div class="input-group mb-3">
-                    <label class="input-group-text" for="inputGroupFile01"><i class="bi bi-person-square"></i></label>
-                    @{
-                        hasError = validationStatus == false && (errors?.ContainsKey("UserPhoto") ?? false);
-                    }
-                    <input type="file" name="UserPhoto" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")" id="inputGroupFile01">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["UserPhoto"]
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+		<div class="row">
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="login-addon"><i class="bi bi-key"></i></span>
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("UserLogin") ?? false);
+					}
+					<input name="UserLogin" type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   value="@formModel?.UserLogin"
+						   placeholder="Логін" aria-label="Login" aria-describedby="login-addon">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["UserLogin"]
+						</div>
+					}
+				</div>
+			</div>
+			<div class="col">
+				<div class="input-group mb-3">
+					<label class="input-group-text" for="inputGroupFile01"><i class="bi bi-person-square"></i></label>
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("UserPhoto") ?? false);
+					}
+					<input type="file" name="UserPhoto" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")" id="inputGroupFile01">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["UserPhoto"]
+						</div>
+					}
+				</div>
+			</div>
+		</div>
 
-        <div class="row">
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="password1-addon"><i class="bi bi-lock"></i></span>
-                    @{
-                        hasError = validationStatus == false && (errors?.ContainsKey("Password1") ?? false);
-                    }
-                    <input name="Password1" type="password" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
-                           placeholder="Пароль" aria-label="Password" aria-describedby="password1-addon"
-                           value="@(validationStatus == false ? null : formModel?.Password1)">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["Password1"]
-                        </div>
-                    }
-                </div>
-            </div>
-            <div class="col">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="password2-addon"><i class="bi bi-unlock"></i></span>
-                    @{
-                        hasError = validationStatus == false && (errors?.ContainsKey("Password2") ?? false);
-                    }
-                    <input name="Password2" type="password" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
-                           placeholder="Повторити пароль" aria-label="Password" aria-describedby="password2-addon"
-                           value="@(validationStatus == false ? null : formModel?.Password2)">
-                    @if (hasError)
-                    {
-                        <div class="invalid-feedback">
-                            @errors?["Password2"]
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+		<div class="row">
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="password1-addon"><i class="bi bi-lock"></i></span>
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("Password1") ?? false);
+					}
+					<input name="Password1" type="password" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   placeholder="Пароль" aria-label="Password" aria-describedby="password1-addon"
+						   value="@(validationStatus == false ? null : formModel?.Password1)">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["Password1"]
+						</div>
+					}
+				</div>
+			</div>
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="password2-addon"><i class="bi bi-unlock"></i></span>
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("Password2") ?? false);
+					}
+					<input name="Password2" type="password" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   placeholder="Повторити пароль" aria-label="Password" aria-describedby="password2-addon"
+						   value="@(validationStatus == false ? null : formModel?.Password2)">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["Password2"]
+						</div>
+					}
+				</div>
+			</div>
 
-        <button type="submit" class="btn btn-outline-secondary">Зареєструватися</button>
-    </form>
+		</div>
+		<div class="row">
+			<div class="col">
+				<div class="input-group mb-3 slug-selection">
+					<span class="input-group-text" id="slug-addon">Slug</span>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" name="SlugOption" id="inlineRadio1" value="login">
+						<label class="form-check-label" for="inlineRadio1">Логін</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" name="SlugOption" id="inlineRadio2" value="name">
+						<label class="form-check-label" for="inlineRadio2">З імені</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" name="SlugOption" id="inlineRadio3" value="custom">
+						<label class="form-check-label" for="inlineRadio3">Ввести окремо</label>
+					</div>
+				</div>
+				<div id="customSlugInput" class="mb-3" style="display: none;">
+					@{
+						hasError = validationStatus == false && (errors?.ContainsKey("CustomSlug") ?? false);
+					}
+					<input type="text" class="form-control @(hasError ? "is-invalid" : (validationStatus != null) ? "is-valid" : "")"
+						   value="@(validationStatus == false ? null : formModel?.CustomSlug)" placeholder="Slug" name="CustomSlug">
+					@if (hasError)
+					{
+						<div class="invalid-feedback">
+							@errors?["CustomSlug"]
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+
+		<button type="submit" class="btn btn-outline-secondary">Зареєструватися</button>
+	</form>
 }
 
-<hr/>
+<hr />
 
 <h2>Моделі в ASP</h2>
 
 <p>
-    З метою передачі комплексних даних в ASP вживаються моделі. Це класи, які мають лише властивості
-    і призначені для поєднання різних данних до однієї "капсули".
+	З метою передачі комплексних даних в ASP вживаються моделі. Це класи, які мають лише властивості
+	і призначені для поєднання різних данних до однієї "капсули".
 </p>
 <p>Моделі поділяють на:</p>
 <ul>
-    <li>моделі форм (FormModel) ;</li>
-    <li>моделі представлень (ViewModel, PageModel) ;</li>
-    <li>моделі даних (Entity) ;</li>
+	<li>моделі форм (FormModel) ;</li>
+	<li>моделі представлень (ViewModel, PageModel) ;</li>
+	<li>моделі даних (Entity) ;</li>
 </ul>
 <p>Оброблення POST-запитів не повинно завершуватися відображенням сторінки.</p>
 

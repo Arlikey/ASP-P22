@@ -10,6 +10,8 @@ namespace ASP_P22.Data.Entities
         public string? Phone { get; set; }
         public string? WorkPosition { get; set; }
         public string? PhotoUrl { get; set; }
+
+        public string? Slug { get; set; } = null!;
         [JsonIgnore]
         public List<UserAccess> Accesses { get; set; } = [];
     }

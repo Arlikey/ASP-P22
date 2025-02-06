@@ -1,0 +1,12 @@
+﻿#slug-addon {
+    margin-right: 1%;
+    border-radius: .25rem;
+}
+
+.slug-selection {
+    align-items: center;
+}
+
+#customSlugInput {
+    width: 30%;
+}
