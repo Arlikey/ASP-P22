@@ -10,6 +10,6 @@ namespace ASP_P22.Data.Entities
         public string? ImagesCsv { get; set; }
         public string? Slug { get; set; }
         [JsonIgnore]
-        public IEnumerable<Product> Products { get; set; } = [];
+        public List<Product> Products { get; set; } = [];
     }
 }

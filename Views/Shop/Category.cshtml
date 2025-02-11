@@ -1,0 +1,39 @@
+﻿@model ASP_P22.Models.Shop.ShopCategoryPageModel
+@{
+	ViewData["Title"] = "Categories";
+}
+
+@if (Model.Category == null)
+{
+	<div class="text-center">
+		<h1 class="display-4">Магазин - розділ не знайдено</h1>
+	</div>
+	<div style="overflow-x: scroll; display: flex; width: 100%; margin: 20px; padding: 20px; justify-content: space-between; scrollbar-width: thin;">
+		@foreach (var category in Model.Categories)
+		{
+			@Html.Partial("CategoryPreview", category)
+		}
+	</div>
+}
+else
+{
+	<div class="text-center">
+		<h1 class="display-4">Магазин - розділ "@(Model.Category.Name)"</h1>
+	</div>
+	<div style="overflow-x: scroll; display: flex; width: 100%; margin: 20px; padding: 20px; justify-content: space-between; scrollbar-width: thin;">
+		@foreach (var category in Model.Categories)
+		{
+			@Html.Partial("CategoryPreview", category)
+		}
+	</div>
+	<hr />
+
+	<div class="row row-cols-1 row-cols-md-3 g-4">
+		@foreach (var product in Model.Category.Products)
+		{
+			@Html.DisplayFor(m => product)
+			;
+		}
+	</div>
+}
+

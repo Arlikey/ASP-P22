@@ -1,0 +1,26 @@
+﻿.category img {
+    height: 100px;
+    width: fit-content;
+}
+
+.category {
+    width: 16rem;
+    align-items: center;
+    padding: 20px 0;
+    border: none;
+    box-shadow: 0 0 5px gray;
+    transition: 0.1s ease-out;
+}
+
+.category {
+    text-align: center;
+}
+
+.category .card-body {
+    padding: 10px 10px 0 10px;
+}
+
+.category:hover  {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px gray;
+}

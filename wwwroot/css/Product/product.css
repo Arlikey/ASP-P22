@@ -1,0 +1,43 @@
+﻿.similar-products-outer {
+    margin: 150px 0 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.similar-products-inner {
+    padding: 20px;
+    display: flex;
+    gap: 30px;
+    overflow-x: scroll;
+    width: 100%;
+    scrollbar-width: thin;
+}
+
+.similar-products-inner .col {
+    width: 240px;
+}
+
+.similar-products-inner img {
+    height: 220px;
+}
+
+.similar-products-inner .card {
+    border: none;
+    box-shadow: 0 0 5px gray;
+    transition: 0.1s ease-out;
+}
+
+.similar-products-inner .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px gray;
+}
+
+.similar-products-inner .col {
+    flex: none;
+}
+
+.similar-products-inner .card-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

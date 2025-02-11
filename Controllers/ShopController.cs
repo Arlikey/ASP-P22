@@ -4,6 +4,7 @@ using ASP_P22.Models.User;
 using ASP_P22.Services.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 
@@ -33,16 +34,44 @@ namespace ASP_P22.Controllers
 			}
 			return View(model);
 		}
+		public ViewResult Product([FromRoute] string id)
+		{
+			ShopProductPageModel model = new()
+			{
+				Product = _dataContext
+				.Products
+				.Include(p => p.Category).ThenInclude(c => c.Products)
+				.FirstOrDefault(p => p.Slug == id || p.Id.ToString() == id),
+				Categories = [.. _dataContext.Categories]
+			};
+			return View(model);
+		}
+		public ViewResult Category([FromRoute] string id)
+		{
+			ShopCategoryPageModel model = new()
+			{
+				Category = _dataContext
+				.Categories
+				.Include(c => c.Products)
+				.FirstOrDefault(c => c.Slug == id),
+				Categories = [.. _dataContext.Categories]
+			};
+			return View(model);
+		}
 		public RedirectToActionResult AddProduct([FromForm] ShopProductFormModel model)
 		{
 			(bool? status, Dictionary<string, string> errors) = ValidateShopProductModel(model);
 
 			if (status ?? false)
 			{
-				string imagesCsv = "";
-				foreach (IFormFile file in model!.Images)
+				string? imagesCsv = null;
+				if (model.Images != null)
 				{
-					imagesCsv += _storageService.Save(file) + ',';
+					imagesCsv = "";
+					foreach (IFormFile file in model!.Images)
+					{
+						imagesCsv += _storageService.Save(file) + ',';
+					}
 				}
 				_dataContext.Products.Add(new Data.Entities.Product
 				{
@@ -110,34 +139,30 @@ namespace ASP_P22.Controllers
 					errors["ProductStock"] = "Кількість товару не може бути від'ємною.";
 				}
 
-				if (string.IsNullOrEmpty(model.Slug))
+				if (!string.IsNullOrEmpty(model.Slug))
 				{
-					status = false;
-					errors["ProductSlug"] = "Slug товару не може бути порожнім.";
-				}
-				else if(_dataContext.Products.Count(p => p.Slug == model.Slug) > 0)
-				{
-					status = false;
-					errors["ProductSlug"] = "Slug товару вже існує.";
-				}
-
-				if (model.Images.IsNullOrEmpty())
-				{
-					status = false;
-					errors["ProductImages"] = "Товар повинен мати принаймні 1 зображення.";
-				}
-
-				foreach (var image in model.Images)
-				{
-					string fileExtension = Path.GetExtension(image.FileName);
-					List<string> availableExtensions = [".jpg", ".png", ".webp", ".jpeg"];
-					if (!availableExtensions.Contains(fileExtension))
+					if (_dataContext.Products.Count(p => p.Slug == model.Slug) > 0)
 					{
 						status = false;
-						errors["ProductImages"] = "Файл повинен мати розширення .jpg, .png, .webp, .jpeg.";
-						break;
+						errors["ProductSlug"] = "Slug товару вже існує.";
 					}
 				}
+
+				if (model.Images != null) 
+				{
+					foreach (var image in model.Images)
+					{
+						string fileExtension = Path.GetExtension(image.FileName);
+						List<string> availableExtensions = [".jpg", ".png", ".webp", ".jpeg"];
+						if (!availableExtensions.Contains(fileExtension))
+						{
+							status = false;
+							errors["ProductImages"] = "Файл повинен мати розширення .jpg, .png, .webp, .jpeg.";
+							break;
+						}
+					}
+				}
+				
 			}
 			return (status, errors);
 		}
