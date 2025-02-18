@@ -1,0 +1,14 @@
+﻿@model ASP_P22.Data.Entities.CartDetail
+
+<div class="row card-detail">
+	<div class="col-1"><img src="/Storage/Item/@(Model.Product.ImagesCsv.Split(',').FirstOrDefault() ?? "no-image.jpg")"/></div>
+	<div class="col-2">@Model.Product.Name</div>
+	<div class="col-3">@Model.Product.Description</div>
+	<div class="col-1">@Model.Product.Price</div>
+	<div class="col-2">
+		<button class="btn btn-outline-warning" data-cart-detail-dec="@Model.Id">-</button>
+		@Model.Quantity
+		<button class="btn btn-outline-success" data-cart-detail-inc="@Model.Id">+</button>
+		</div>
+	<div class="col-1">@Model.Price</div>
+</div>

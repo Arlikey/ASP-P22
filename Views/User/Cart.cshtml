@@ -1,0 +1,30 @@
+﻿@model ASP_P22.Models.User.UserCartPageModel
+
+@{
+	ViewData["Title"] = "Кошик";
+	bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+}
+
+<div class="text-center">
+	<h1 class="display-4">Мій кошик</h1>
+</div>
+
+@if (!isAuthenticated)
+{
+	<h2>Кошик активується після входу в систему</h2>
+}
+else if(Model.ActiveCart == null || Model.ActiveCart.CartDetails.Count == 0)
+{
+	<h2>Ваш кошик поки, що порожній. <a asp-controller="Shop" asp-action="Index">Виберіть товари</a></h2>
+}
+else
+{
+	<h2>Товари у кошику:</h2>
+	@foreach(var detail in Model.ActiveCart.CartDetails)
+	{
+		@Html.DisplayFor(m => detail);
+	}
+	<div class="row">
+		Загальна вартість замовлення: ₴ @Model.ActiveCart.Price
+	</div>
+}

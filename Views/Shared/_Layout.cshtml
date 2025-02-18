@@ -39,6 +39,7 @@
                         <a class="btn btn-outline-dark" asp-controller="User" asp-action="Review"><i class="bi bi-chat-left-text"></i></a>
                     @if (isAuthenticated)
                     {
+                            <a asp-controller="User" asp-action="Cart" class="btn btn-outline-primary"><i class="bi bi-bag-fill"></i></a>
                             <a asp-controller="User" asp-action="Profile" asp-route-id="@userSlug"
                             id="user-icon" data-bs-toggle="tooltip" data-bs-placement="bottom"
                             data-bs-title="@(userName)">@(firstLetter)</a>

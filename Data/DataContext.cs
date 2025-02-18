@@ -9,6 +9,8 @@ namespace ASP_P22.Data
         public DbSet<UserAccess> Accesses { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartDetail> CartDetails { get; set; }
 
         public DataContext(DbContextOptions options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,7 +31,19 @@ namespace ASP_P22.Data
             modelBuilder.Entity<Product>().HasIndex(p => p.Slug);
             modelBuilder.Entity<Category>().HasIndex(c => c.Slug);
 
-            modelBuilder.Entity<Category>().HasData(
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Carts);
+
+			modelBuilder.Entity<CartDetail>()
+				.HasOne(cd => cd.Product)
+				.WithMany();
+
+			modelBuilder.Entity<CartDetail>()
+				.HasOne(cd => cd.Cart)
+				.WithMany(c => c.CartDetails);
+
+			modelBuilder.Entity<Category>().HasData(
                 new Category
                 {
                     Id = Guid.Parse("C4971B90-C145-411D-A35A-0EC565423DB7"),

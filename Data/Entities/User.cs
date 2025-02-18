@@ -14,5 +14,7 @@ namespace ASP_P22.Data.Entities
         public string? Slug { get; set; } = null!;
         [JsonIgnore]
         public List<UserAccess> Accesses { get; set; } = [];
-    }
+		[JsonIgnore]
+		public List<Cart> Carts { get; set; } = [];
+	}
 }

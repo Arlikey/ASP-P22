@@ -88,6 +88,22 @@ namespace ASP_P22.Controllers
 			}
 			return View(pageModel);
 		}
+		public ViewResult Cart()
+		{
+			UserCartPageModel model = new();
+			string? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+			if (userId != null)
+			{
+				Guid uid = Guid.Parse(userId);
+				model.ActiveCart = _dataContext
+					.Carts
+					.Include(c => c.CartDetails)
+					.ThenInclude(cd => cd.Product)
+					.FirstOrDefault(c => c.UserId == uid && c.MomentCancel == null && c.MomentBuy == null);
+			}
+			
+			return View(model);
+		}
 		public ViewResult Profile([FromRoute] string id)
 		{
 			UserProfilePageModel pageModel;
