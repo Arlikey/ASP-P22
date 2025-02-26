@@ -1,13 +1,18 @@
 ﻿@model ASP_P22.Data.Entities.CartDetail
 
 <div class="row card-detail">
-	<div class="col-1"><img src="/Storage/Item/@(Model.Product.ImagesCsv.Split(',').FirstOrDefault() ?? "no-image.jpg")"/></div>
-	<div class="col-2">@Model.Product.Name</div>
+	<div class="col-1">
+		<a asp-controller="Shop" asp-action="Product" asp-route-id="@(Model.Product.Slug ?? Model.Product.Id.ToString())" style="">
+			<img src="/Storage/Item/@(Model.Product.ImagesCsv?.Split(',').FirstOrDefault() ?? "no-image.jpg")"/>
+		</a>
+	</div>
+	<div class="col-2" id="product-name">@Model.Product.Name</div>
 	<div class="col-3">@Model.Product.Description</div>
 	<div class="col-1">@Model.Product.Price</div>
-	<div class="col-2">
+	<div class="col-lg-2 col-md-3 col-sm-4">
+		<button class="btn btn-outline-danger" data-cart-detail-del="@Model.Id">x</button>
 		<button class="btn btn-outline-warning" data-cart-detail-dec="@Model.Id">-</button>
-		@Model.Quantity
+		<span class="editable-qnt" contenteditable="true" data-cart-detail-qnt="@Model.Id">@Model.Quantity</span>
 		<button class="btn btn-outline-success" data-cart-detail-inc="@Model.Id">+</button>
 		</div>
 	<div class="col-1">@Model.Price</div>

@@ -11,12 +11,22 @@ namespace ASP_P22.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartDetail> CartDetails { get; set; }
+        public DbSet<Rate> Rates { get; set; }
 
         public DataContext(DbContextOptions options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("site");
-            modelBuilder.Entity<User>()
+
+			modelBuilder.Entity<Rate>()
+				.HasOne(r => r.User)
+				.WithMany(u => u.Rates);
+
+			modelBuilder.Entity<Rate>()
+				.HasOne(r => r.Product)
+				.WithMany(p => p.Rates);
+
+			modelBuilder.Entity<User>()
                 .HasMany(u => u.Accesses)
                 .WithOne(ua => ua.User)
                 .HasForeignKey(ua => ua.UserId);

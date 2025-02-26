@@ -1,4 +1,5 @@
 ﻿using ASP_P22.Data;
+using ASP_P22.Data.Entities;
 using ASP_P22.Models.Shop;
 using ASP_P22.Models.User;
 using ASP_P22.Services.Storage;
@@ -37,15 +38,40 @@ namespace ASP_P22.Controllers
 		}
 		public ViewResult Product([FromRoute] string id)
 		{
+			string? authUserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
 			ShopProductPageModel model = new()
 			{
 				Product = _dataContext
 				.Products
-				.Include(p => p.Category).ThenInclude(c => c.Products)
+				.Include(p => p.Category)
+					.ThenInclude(c => c.Products)
+				.Include(p => p.Rates)
 				.FirstOrDefault(p => p.Slug == id || p.Id.ToString() == id),
+				IsUserCanRate = authUserId != null && _dataContext
+					.CartDetails
+					.Any(cd => (cd.ProductId.ToString() == id || cd.Product.Slug == id) && cd.Cart.UserId.ToString() == authUserId),
+				UserRate = authUserId == null ? null : _dataContext.Rates.FirstOrDefault(r => (r.ProductId.ToString() == id || r.Product.Slug == id) && r.UserId.ToString() == authUserId),
+				AuthUserId = authUserId,
 				Categories = [.. _dataContext.Categories]
 			};
 			return View(model);
+		}
+		public JsonResult Rate([FromBody] ShopRateFormModel rateModel)
+		{
+			Rate rate = new()
+			{
+				Id = Guid.NewGuid(),
+				UserId = Guid.Parse(rateModel.UserId),
+				ProductId = Guid.Parse(rateModel.ProductId),
+				Comment = rateModel.Comment,
+				Rating = rateModel.Rating,
+				Moment = DateTime.Now
+			};
+			_dataContext.Rates.Add(rate);
+			_dataContext.SaveChanges();
+
+			return Json(rate);
 		}
 		public ViewResult Category([FromRoute] string id)
 		{
@@ -182,6 +208,46 @@ namespace ASP_P22.Controllers
 			}
 			_dataContext.SaveChanges();
 			return Json(new { status = 202, message = "Accepted" });
+		}
+		[HttpDelete]
+		public JsonResult CloseCart([FromRoute] string id)
+		{
+			string? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+			if (userId == null)
+			{
+				return Json(new { status = 401, message = "Unauthorized" });
+			}
+
+			Guid cartId;
+			try { cartId = Guid.Parse(id); }
+			catch { return Json(new { status = 400, message = "id unrecognized" }); }
+
+			var cart = _dataContext.Carts.Include(c => c.CartDetails).ThenInclude(cd => cd.Product).FirstOrDefault(c => c.Id == cartId);
+			if (cart == null)
+			{
+				return Json(new { status = 404, message = "Requested ID Not Found" });
+			}
+
+			if (cart.UserId.ToString() != userId)
+			{
+				return Json(new { status = 403, message = "Forbidden" });
+			}
+
+			string cartAction = Request.Headers["Cart-Action"].ToString();
+			if (cartAction == "Buy")
+			{
+				cart.MomentBuy = DateTime.Now;
+				foreach(var cd in cart.CartDetails)
+				{
+					cd.Product.Stock -= cd.Quantity;
+				}
+			}
+			else
+			{
+				cart.MomentCancel = DateTime.Now;
+			}
+			_dataContext.SaveChanges();
+			return Json(new { status = 200, message = "OK" });
 		}
 		public RedirectToActionResult AddProduct([FromForm] ShopProductFormModel model)
 		{
