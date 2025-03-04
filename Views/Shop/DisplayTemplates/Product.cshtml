@@ -1,5 +1,9 @@
 ﻿@model ASP_P22.Data.Entities.Product
 
+@{
+	double? avgRating = Model.Rates.Where(r => (r.Rating ?? 0) > 0).Average(r => r.Rating);
+}
+
 <div class="col">
 
 	<div class="card h-100" title="@(Model.Description)">
@@ -13,6 +17,15 @@
 		</div>
 		<div class="card-footer">
 			<strong>₴ @(Model.Price)</strong>, у наявності - @(Model.Stock)
+			<i class="bi bi-star-fill" style="color: orange;"></i> 
+			@if (avgRating != null)
+			{
+				<span>@(avgRating.Value.ToString("F1"))</span>
+			}
+			else
+			{
+				<span>@(avgRating)</span>
+			}
 		</div>
 	</div>
 

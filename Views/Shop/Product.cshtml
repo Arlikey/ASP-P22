@@ -53,25 +53,54 @@ else
 			<div data-cart-product="@Model.Product.Id" class="btn btn-primary">
 				<i class="bi bi-bag-plus"></i> Придбати
 			</div>
-			<hr/>
-			Загальна оцінка: @(Model.Product.Rates == null ? "немає данних" : Model.Product.Rates.Average(r => r.Rating))
-			<br/>
-			@if (Model.IsUserCanRate)
-			{
-				<p>Оцінити: <input id="rate-rating" type="number" value="@(Model.UserRate?.Rating ?? 5)"/></p>
-				<p>
-					Коментувати: <textarea id="rate-comment">@Model.UserRate?.Comment</textarea>
-				</p>
-				@if(Model.UserRate != null)
-				{
-					<i>Ви залишили оцінку @Model.UserRate.Moment</i>
-				}
-				<button class="btn btn-outline-secondary" type="button" id="rate-button"
-				data-rate-user="@Model.AuthUserId" data-rate-product="@Model.Product.Id">Залишити коментар</button>
-			}
+			<hr />
+			<div class="row">
+				<div class="col">
+					<span class="summary-rate">
+						Загальна оцінка: @(!(Model.Product.Rates.Any()) ? "немає данних" : Model.Product.Rates.Average(r => r.Rating).Value.ToString("F1"))
+					</span>
+					@if (Model.IsUserCanRate)
+					{
+						<p>Оцінити: <input id="rate-rating" type="number" value="@(Model.UserRate?.Rating ?? 5)" /></p>
+						<p>
+							Коментувати: <textarea id="rate-comment">@Model.UserRate?.Comment</textarea>
+						</p>
+						@if (Model.UserRate != null)
+						{
+							<i>Ви залишили оцінку @Model.UserRate.Moment</i>
+						}
+						<button class="btn btn-outline-secondary" type="button" id="rate-button"
+								data-rate-user="@Model.AuthUserId" data-rate-product="@Model.Product.Id">
+							Зберегти коментар
+						</button>
+					}
+					else
+					{
+						<i>Купіть товар, щоб мати можливість коментувати його!</i>
+					}
+				</div>
+				<div class="col">
+					<span class="rates-header">
+						Коментарі:
+					</span>
+					<div class="rates-container">
+						@foreach (var rate in Model.Product.Rates ?? [])
+						{
+							if (rate.Comment is not null)
+							{
+								@Html.DisplayFor(r => rate)
+							}
+						}
+					</div>
+				</div>
+			</div>
+			<br />
+
 		</div>
 	</div>
-
+	<br />
+	<br />
+	<br />
 	<div class="similar-products-outer">
 		<h3>Схожі товари:</h3>
 		<div class="similar-products-inner">

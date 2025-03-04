@@ -1,0 +1,30 @@
+﻿.cart-detail {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+    height: 96px;
+    box-shadow: 0 0 5px #69696980;
+    border-radius: 4px;
+    transition: 0.2s ease-out;
+}
+
+.cart-detail a {
+    display: flex;
+    align-items: center;
+    color: currentColor;
+}
+
+    .cart-detail:hover {
+        transform: scale(1.05);
+    }
+
+.name, .description {
+    text-align: left;
+}
+
+.cart-detail img {
+    width: 90px;
+    height: 85px;
+    border-radius: 4px;
+}

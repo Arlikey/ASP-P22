@@ -1,0 +1,46 @@
+﻿.cancel-info, .buy-info, .open-info {
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: center;
+}
+
+.cart-header {
+    margin-bottom: 20px;
+}
+
+.cancel-info {
+    color: #dc3545;
+}
+
+.buy-info {
+    color: #198754;
+}
+
+.open-info {
+    color: #0d6efd;
+}
+
+.summary-price {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.summary-price b {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.buy-cancel-btns {
+    margin-top: 20px;
+}
+
+    .buy-cancel-btns .btn-success {
+        margin-left: 10px;
+    }
+
+    .buy-cancel-btns button {
+        font-size: 18px;
+    }

@@ -1,19 +1,34 @@
 ﻿@model ASP_P22.Data.Entities.CartDetail
 
-<div class="row card-detail">
-	<div class="col-1">
-		<a asp-controller="Shop" asp-action="Product" asp-route-id="@(Model.Product.Slug ?? Model.Product.Id.ToString())" style="">
-			<img src="/Storage/Item/@(Model.Product.ImagesCsv?.Split(',').FirstOrDefault() ?? "no-image.jpg")"/>
-		</a>
-	</div>
-	<div class="col-2" id="product-name">@Model.Product.Name</div>
-	<div class="col-3">@Model.Product.Description</div>
-	<div class="col-1">@Model.Product.Price</div>
-	<div class="col-lg-2 col-md-3 col-sm-4">
-		<button class="btn btn-outline-danger" data-cart-detail-del="@Model.Id">x</button>
-		<button class="btn btn-outline-warning" data-cart-detail-dec="@Model.Id">-</button>
-		<span class="editable-qnt" contenteditable="true" data-cart-detail-qnt="@Model.Id">@Model.Quantity</span>
-		<button class="btn btn-outline-success" data-cart-detail-inc="@Model.Id">+</button>
+@{
+	bool isActive = (Model.Cart.MomentCancel == null && Model.Cart.MomentBuy == null);
+}
+
+<link rel="stylesheet" href="~/css/Shop/cart-detail.css" asp-append-version="true" />
+
+
+<div class="row cart-detail">
+	<a asp-controller="Shop" asp-action="Product" asp-route-id="@(Model.Product.Slug ?? Model.Product.Id.ToString())" class="col-9">
+		<div class="col-2">
+			<img src="/Storage/Item/@(Model.Product.ImagesCsv?.Split(',').FirstOrDefault() ?? "no-image.jpg")" />
 		</div>
-	<div class="col-1">@Model.Price</div>
+		<div class="col-2 name" id="product-name">@Model.Product.Name</div>
+		<div class="col-6 description">@Model.Product.Description</div>
+		<div class="col-2">₴ @Model.Product.Price шт.</div>
+	</a>
+	<div class="col-lg-2 col-md-3 col-sm-4">
+		@if (isActive)
+		{
+			<button class="btn btn-outline-danger" data-cart-detail-del="@Model.Id">x</button>
+			<button class="btn btn-outline-warning" data-cart-detail-dec="@Model.Id">-</button>
+		}
+		<span class="editable-qnt" contenteditable="@(isActive ? "true" : "false")" data-cart-detail-qnt="@Model.Id">@Model.Quantity</span>
+		@if (isActive)
+		{
+			<button class="btn btn-outline-success" data-cart-detail-inc="@Model.Id">+</button>
+		}
+	</div>
+	<a asp-controller="Shop" asp-action="Product" asp-route-id="@(Model.Product.Slug ?? Model.Product.Id.ToString())" class="col-1">
+		<div class="col-12">₴ @Model.Price</div>
+	</a>
 </div>

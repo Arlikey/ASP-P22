@@ -63,14 +63,6 @@ body {
     height: 400px;
 }
 
-.card-detail {
-
-}
-
-.card-detail img {
-    max-width: 100%;
-}
-
 .editable-qnt {
     cursor: pointer;
     border: 1px solid gray;
@@ -84,4 +76,8 @@ body {
 a {
     text-decoration: none;
     color: currentColor
+}
+
+.logout {
+    margin-left: 15px;
 }

@@ -88,7 +88,7 @@ namespace ASP_P22.Controllers
             }
             return View(pageModel);
         }
-        public ViewResult Cart(String? id)
+        public ViewResult Cart(string? id)
         {
             UserCartPageModel model = new();
             string? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;

@@ -47,6 +47,7 @@ namespace ASP_P22.Controllers
 				.Include(p => p.Category)
 					.ThenInclude(c => c.Products)
 				.Include(p => p.Rates)
+					.ThenInclude(r => r.User)
 				.FirstOrDefault(p => p.Slug == id || p.Id.ToString() == id),
 				IsUserCanRate = authUserId != null && _dataContext
 					.CartDetails
@@ -59,19 +60,50 @@ namespace ASP_P22.Controllers
 		}
 		public JsonResult Rate([FromBody] ShopRateFormModel rateModel)
 		{
-			Rate rate = new()
+			Guid userId;
+			try { userId = Guid.Parse(rateModel.UserId); }
+			catch { return Json(new { status = 400, message = "Unparseble UUID 'userid'" }); }
+
+			Guid productId;
+			try { productId = Guid.Parse(rateModel.ProductId); }
+			catch { return Json(new { status = 400, message = "Unparseble UUID 'productid'" }); }
+
+			var user = _dataContext.Users.Include(u => u.Rates).FirstOrDefault(u => u.Id == userId);
+			if (user is null)
 			{
-				Id = Guid.NewGuid(),
-				UserId = Guid.Parse(rateModel.UserId),
-				ProductId = Guid.Parse(rateModel.ProductId),
-				Comment = rateModel.Comment,
-				Rating = rateModel.Rating,
-				Moment = DateTime.Now
-			};
-			_dataContext.Rates.Add(rate);
+				return Json(new { status = 401, message = $"User '{userId}' unathorized" });
+			}
+
+			var product = _dataContext.Products.FirstOrDefault(p => p.Id == productId);
+			if (product is null)
+			{
+				return Json(new { status = 404, message = $"Product '{productId}' not found" });
+			}
+
+			var givenRate = user.Rates?.FirstOrDefault(r => r.ProductId == productId);
+			if (givenRate is not null)
+			{
+				givenRate.Comment = rateModel.Comment;
+				givenRate.Rating = rateModel.Rating;
+				givenRate.Moment = DateTime.Now;
+			}
+			else
+			{
+				givenRate = new()
+				{
+					Id = Guid.NewGuid(),
+					UserId = Guid.Parse(rateModel.UserId),
+					ProductId = Guid.Parse(rateModel.ProductId),
+					Comment = rateModel.Comment,
+					Rating = rateModel.Rating,
+					Moment = DateTime.Now
+				};
+				_dataContext.Rates.Add(givenRate);
+			}
+
 			_dataContext.SaveChanges();
 
-			return Json(rate);
+			return Json(new { status = 200, message = "Ok", data = givenRate });
 		}
 		public ViewResult Category([FromRoute] string id)
 		{
@@ -80,6 +112,7 @@ namespace ASP_P22.Controllers
 				Category = _dataContext
 				.Categories
 				.Include(c => c.Products)
+					.ThenInclude(p => p.Rates)
 				.FirstOrDefault(c => c.Slug == id),
 				Categories = [.. _dataContext.Categories]
 			};
@@ -237,7 +270,7 @@ namespace ASP_P22.Controllers
 			if (cartAction == "Buy")
 			{
 				cart.MomentBuy = DateTime.Now;
-				foreach(var cd in cart.CartDetails)
+				foreach (var cd in cart.CartDetails)
 				{
 					cd.Product.Stock -= cd.Quantity;
 				}

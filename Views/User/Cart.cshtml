@@ -1,5 +1,7 @@
 ﻿@model ASP_P22.Models.User.UserCartPageModel
 
+<link rel="stylesheet" href="~/css/Shop/cart.css" asp-append-version="true" />
+
 @{
 	ViewData["Title"] = "Кошик";
 	bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
@@ -21,14 +23,28 @@ else
 	}
 	else
 	{
-		<h2>Товари у кошику:</h2>
-		@foreach (var detail in Model.ActiveCart.CartDetails)
+		if (Model.ActiveCart.MomentCancel != null)
 		{
-			@Html.DisplayFor(m => detail)
-			;
+			<h3 class="cancel-info">Скасовано @Model.ActiveCart.MomentCancel.Value.ToShortDateString()</h3>
 		}
-		<div class="row">
-			<div class="offset-6 col-lg-3 col-md-4 col-sm-5">
+		else if (Model.ActiveCart.MomentBuy != null)
+		{
+			<h3 class="buy-info">Придбано @Model.ActiveCart.MomentBuy.Value.ToShortDateString()</h3>
+		}
+		else
+		{
+			<h3 class="open-info">Відкритий з @Model.ActiveCart.MomentOpen.ToShortDateString()</h3>
+		}
+		<h2 class="cart-header">Товари у кошику:</h2>
+		<div class="cart-items-container">
+			@foreach (var detail in Model.ActiveCart.CartDetails)
+			{
+				@Html.DisplayFor(m => detail)
+				;
+			}
+		</div>
+		<div class="row summary-price">
+			<div class="offset-8 col-lg-3 col-md-4 col-sm-5">
 				Загальна вартість замовлення, ₴:
 			</div>
 			<div class="col-1">
@@ -36,8 +52,8 @@ else
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="offset-7 col-lg-3 col-md-4 col-sm-5 text-end">
+		<div class="row buy-cancel-btns">
+			<div class="offset-9 col-lg-3 col-md-4 col-sm-5 text-end">
 				@if (Model.ActiveCart.MomentCancel != null || Model.ActiveCart.MomentBuy != null)
 				{
 					<button class="btn btn-success" data-cart-repeat="@Model.ActiveCart.Id">Повторити</button>

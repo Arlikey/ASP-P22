@@ -1,111 +1,113 @@
 ﻿@using System.Security.Claims
 @{
-    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
-    string? userName = isAuthenticated ? Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value : null;
-    char firstLetter = userName?[0] ?? 'N';
-    string? userSlug = isAuthenticated ? Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value : null;
+	bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+	string? userName = isAuthenticated ? Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value : null;
+	char firstLetter = userName?[0] ?? 'N';
+	string? userSlug = isAuthenticated ? Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value : null;
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ASP-P22</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ASP-P22.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/User/user_icon.css"/>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - ASP-P22</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/ASP-P22.styles.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/User/user_icon.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ASP-P22</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <div class="user-block">
-                        <a class="btn btn-outline-dark" asp-controller="User" asp-action="Review"><i class="bi bi-chat-left-text"></i></a>
-                    @if (isAuthenticated)
-                    {
-                            <a asp-controller="User" asp-action="Cart" class="btn btn-outline-primary"><i class="bi bi-bag-fill"></i></a>
-                            <a asp-controller="User" asp-action="Profile" asp-route-id="@userSlug"
-                            id="user-icon" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                            data-bs-title="@(userName)">@(firstLetter)</a>
-                            <a href="?logout" class="btn btn-outline-danger">
-                                <i class="bi bi-box-arrow-right"></i>
-                            </a>
-                    }
-                    else
-                    {
-                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal">
-                                <i class="bi bi-box-arrow-in-right"></i>
-                            </button>
-                            <a class="btn btn-outline-dark" asp-controller="User" asp-action="Index"><i class="bi bi-person-plus"></i></a>
-                    }
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+	<header>
+		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+			<div class="container-fluid">
+				<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ASP-P22</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+						aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+					<ul class="navbar-nav flex-grow-1">
+						<li class="nav-item">
+							<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+						</li>
+					</ul>
+					<div class="user-block">
+						<a class="btn btn-outline-dark" asp-controller="User" asp-action="Review"><i class="bi bi-chat-left-text"></i></a>
+						@if (isAuthenticated)
+						{
+							<a asp-controller="User" asp-action="Cart" asp-route-id="" class="btn btn-outline-primary"><i class="bi bi-bag-fill"></i></a>
+							<a asp-controller="User" asp-action="Profile" asp-route-id="@userSlug"
+							   id="user-icon" data-bs-toggle="tooltip" data-bs-placement="bottom"
+							   data-bs-title="@(userName)">
+							   @firstLetter
+							</a>
+							<a href="?logout" class="btn btn-outline-danger logout">
+								<i class="bi bi-box-arrow-right"></i>
+							</a>
+						}
+						else
+						{
+							<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal">
+								<i class="bi bi-box-arrow-in-right"></i>
+							</button>
+							<a class="btn btn-outline-dark" asp-controller="User" asp-action="Index"><i class="bi bi-person-plus"></i></a>
+						}
+					</div>
+				</div>
+			</div>
+		</nav>
+	</header>
+	<div class="container">
+		<main role="main" class="pb-3">
+			@RenderBody()
+		</main>
+	</div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - ASP-P22 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)  
+	<footer class="border-top footer text-muted">
+		<div class="container">
+			&copy; 2024 - ASP-P22 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+		</div>
+	</footer>
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+	@await RenderSectionAsync("Scripts", required: false)
 
-    <!-- Modal -->
-    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="authModalLabel">Автентифікація</h1>
-                    <button type="button" class="btn-close" datauthModala-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="auth-form">
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" id="auth-login-addon"><i class="bi bi-key"></i></span>
-                            <input name="UserLogin" type="text" class="form-control"
-                                   placeholder="Логін" aria-label="Login" aria-describedby="auth-login-addon">
-                            <div id="login-feedback" class="invalid-feedback"></div>
-                        </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" id="auth-password-addon"><i class="bi bi-lock"></i></span>
-                            <input name="Password" type="password" class="form-control"
-                                   placeholder="Пароль" aria-label="Password" aria-describedby="auth-password-addon">
-                            <div id="password-feedback" class="invalid-feedback"></div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <div id="auth-error" class="text-danger me-auto"></div>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                    <button type="submit" class="btn btn-primary" form="auth-form">Вхід</button>
-                </div>
-            </div>
-        </div>
-    </div>
+	<!-- Modal -->
+	<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="authModalLabel">Автентифікація</h1>
+					<button type="button" class="btn-close" datauthModala-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form id="auth-form">
+						<div class="input-group mb-3">
+							<span class="input-group-text" id="auth-login-addon"><i class="bi bi-key"></i></span>
+							<input name="UserLogin" type="text" class="form-control"
+								   placeholder="Логін" aria-label="Login" aria-describedby="auth-login-addon">
+							<div id="login-feedback" class="invalid-feedback"></div>
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text" id="auth-password-addon"><i class="bi bi-lock"></i></span>
+							<input name="Password" type="password" class="form-control"
+								   placeholder="Пароль" aria-label="Password" aria-describedby="auth-password-addon">
+							<div id="password-feedback" class="invalid-feedback"></div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<div id="auth-error" class="text-danger me-auto"></div>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+					<button type="submit" class="btn btn-primary" form="auth-form">Вхід</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

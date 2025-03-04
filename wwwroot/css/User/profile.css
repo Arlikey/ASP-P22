@@ -31,8 +31,8 @@
 }
 
 .bg-c-lite-green {
-    background: -webkit-gradient(linear, left top, right top, from(#f29263), to(#ee5a6f));
-    background: linear-gradient(to right, #ee5a6f, #f29263);
+    background: -webkit-gradient(linear, left top, right top, from(#582eff), to(#0d6efd));
+    background: linear-gradient(to right, #582eff, #0d6efd);
 }
 
 .user-profile {
@@ -49,8 +49,9 @@
 
 .img-radius {
     border-radius: 50%;
-    max-height: 100px;
-    max-width: 100px;
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
 }
 
 
@@ -135,3 +136,58 @@ h6 {
         -webkit-transition: all 0.3s ease-in-out;
         transition: all 0.3s ease-in-out;
     }
+
+
+
+/*
+    SHOPPING LIST
+*/
+
+.shop-list {
+    padding-right: 0px;
+    padding-bottom: 0px;
+}
+
+.shop-list h6 {
+    margin-bottom: 0;
+}
+
+.shopping-items-container {
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    height: 340px;
+    padding: 5px;
+}
+
+.list-item {
+    display: grid;
+    grid-template-columns: 3fr 4fr 1fr;
+    text-align: left;
+    align-items: center;
+    height: 42px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: 0.2s ease-out;
+}
+
+.list-item:hover {
+    background-color: #e5e5e5;
+    color: currentColor;
+}
+
+.list-item .bi {
+    font-size: 20px;
+    text-align: right;
+}
+
+.bi-bag-check {
+    color: #198754;
+}
+
+.bi-bag-x {
+    color: #dc3545;
+}
+
+.bi-bag {
+    color: #0d6efd;
+}

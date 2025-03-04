@@ -1,0 +1,29 @@
+﻿@model ASP_P22.Data.Entities.Rate
+
+<link rel="stylesheet" href="~/css/User/rate.css" asp-append-version="true" />
+
+<div class="card border-secondary mb-4 rate-card">
+	<div class="card-header">
+		<div class="float-start">
+			<a asp-controller="User" asp-action="Profile" asp-route-id="@Model.User.Slug">
+				<img src="/Storage/Item/@Model.User.PhotoUrl" alt="Alternate Text" class="rate-user-image" />
+			</a>
+		</div>
+		<b>@Model.User.Name</b>
+		<br />
+		<i class="rate-moment">@Model.Moment.ToString("MMM d, yyyy")</i>
+	</div>
+	<div class="card-body text-secondary">
+		<h5 class="card-title">
+			@for (int i = 0; i < (Model.Rating ?? 0); i++)
+			{
+				<b class="rate-active"><i class="bi bi-star-fill"></i></b>
+			}
+			@for (int i = (Model.Rating ?? 0); i < 5; i++)
+			{
+				<b class="rate-inactive"><i class="bi bi-star"></i></b>
+			}
+		</h5>
+		<p class="card-text">@Model.Comment</p>
+	</div>
+</div>

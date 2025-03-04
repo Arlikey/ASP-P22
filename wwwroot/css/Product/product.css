@@ -41,3 +41,17 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.rates-header {
+    display: inline-block;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.rates-container {
+    height: 360px;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    padding: 10px;
+}
