@@ -57,7 +57,7 @@ else
 			<div class="row">
 				<div class="col">
 					<span class="summary-rate">
-						Загальна оцінка: @(!(Model.Product.Rates.Any()) ? "немає данних" : Model.Product.Rates.Average(r => r.Rating).Value.ToString("F1"))
+						Загальна оцінка: @(!(Model.Product.Rates.Any()) ? "немає данних" : Model.Product.Rates.Average(r => r.Rating))
 					</span>
 					@if (Model.IsUserCanRate)
 					{
