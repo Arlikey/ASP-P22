@@ -1,5 +1,6 @@
 ﻿using ASP_P22.Data;
 using ASP_P22.Data.Entities;
+using ASP_P22.Migrations;
 using ASP_P22.Models.Shop;
 using ASP_P22.Models.User;
 using ASP_P22.Services.Storage;
@@ -281,6 +282,111 @@ namespace ASP_P22.Controllers
 			}
 			_dataContext.SaveChanges();
 			return Json(new { status = 200, message = "OK" });
+		}
+		[HttpPost]
+		public JsonResult RepeatCart([FromRoute] string id)
+		{
+			string? userId = HttpContext
+				.User
+				.Claims
+				.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?
+				.Value;
+			if (userId == null)
+			{
+				return Json(new { status = 401, message = "Unauthorized" });
+			}
+
+			Guid uid = Guid.Parse(userId);
+
+			Guid cartId;
+			try { cartId = Guid.Parse(id); }
+			catch
+			{
+				return Json(new { status = 400, message = "UUID required" });
+			}
+
+			var oldCart = _dataContext.Carts
+				.Include(c => c.CartDetails)
+				.ThenInclude(cd => cd.Product)
+				.FirstOrDefault(c => c.Id == cartId && c.UserId == uid);
+
+			if (oldCart == null)
+			{
+				return Json(new { status = 404, message = "Cart not found" });
+			}
+
+			var activeCart = _dataContext.Carts
+				.Include(c => c.CartDetails)
+				.FirstOrDefault(c => c.UserId == uid && c.MomentBuy == null && c.MomentCancel == null);
+
+			if (activeCart == null)
+			{
+				activeCart = new Data.Entities.Cart()
+				{
+					Id = Guid.NewGuid(),
+					MomentOpen = DateTime.Now,
+					UserId = uid,
+					Price = 0,
+				};
+				_dataContext.Carts.Add(activeCart);
+			}
+
+			List<string> warnings = new List<string>();
+
+			foreach (var oldDetail in oldCart.CartDetails)
+			{
+				var product = oldDetail.Product;
+				if (product == null)
+				{
+					warnings.Add($"Товар '{oldDetail.ProductId}' більше не доступний.");
+					continue;
+				}
+
+				int availableQuantity = product.Stock;
+				if (availableQuantity <= 0)
+				{
+					warnings.Add($"Товар '{product.Name}' недоступний для замовлення.");
+					continue;
+				}
+
+				int addQuantity = Math.Min(oldDetail.Quantity, availableQuantity);
+				var activeDetail = _dataContext.CartDetails.FirstOrDefault(d => d.CartId == activeCart.Id && d.ProductId == product.Id);
+
+				if (activeDetail != null)
+				{
+					activeDetail.Quantity += addQuantity;
+					activeDetail.Price += product.Price * addQuantity;
+				}
+				else
+				{
+					var newDetail = new Data.Entities.CartDetail()
+					{
+						Id = Guid.NewGuid(),
+						Moment = DateTime.Now,
+						CartId = activeCart.Id,
+						ProductId = product.Id,
+						Price = product.Price * addQuantity,
+						Quantity = addQuantity
+					};
+					_dataContext.CartDetails.Add(newDetail);
+				}
+
+				activeCart.Price += product.Price * addQuantity;
+
+				if (addQuantity < oldDetail.Quantity)
+				{
+					warnings.Add($"Товар '{product.Name}' додано у меншій кількості ({addQuantity} шт.) через обмежений залишок.");
+				}
+			}
+
+			_dataContext.SaveChanges();
+
+			return Json(new
+			{
+				status = 200,
+				message = "Cart repeated successfully",
+				warnings
+			});
 		}
 		public RedirectToActionResult AddProduct([FromForm] ShopProductFormModel model)
 		{

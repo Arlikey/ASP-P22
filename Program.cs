@@ -22,6 +22,7 @@ builder.Services.AddSingleton<ISlugifyService, TrasliterationSlugifyService>();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddScoped<DataAccessor>();
 
 builder.Services.AddDistributedMemoryCache();
 

@@ -30,6 +30,10 @@
         btn.addEventListener('click', buyCart);
     }
 
+    for (let btn of document.querySelectorAll('[data-cart-repeat]')) {
+        btn.addEventListener('click', repeatCart);
+    }
+
     const rateButton = document.getElementById('rate-button');
     if (rateButton) {
         rateButton.addEventListener('click', rateClick);
@@ -70,20 +74,22 @@ function rateClick(e) {
     console.log(userId, productId, comment, rating);
 }
 
-function cancelCart(e) {
+async function cancelCart(e) {
     const idElement = e.target.closest('[data-cart-cancel]');
     if (!idElement) throw "cancelCart() error: [data-cart-cancel] not found";
     const cartId = idElement.getAttribute('data-cart-cancel');
     if (!cartId) throw "cancelCart() error: [data-cart-cancel] attribute empty or not found";
 
-    console.log(cartId);
+    const modalResult = await openModal("Скасування", "Ви збираєтеся скасувати кошик. Підтверджуєте?", true);
+    if (!modalResult) {
+        return;
+    }
 
     fetch(`/Shop/CloseCart/${cartId}`, {
         method: 'DELETE',
     }).then(r => r.json()).then(j => {
         console.log(j);
         if (j.status < 300) {
-            alert('Кошик скасовано.')
             window.location.reload();
             return;
         }
@@ -94,13 +100,16 @@ function cancelCart(e) {
     });
 }
 
-function buyCart(e) {
+async function buyCart(e) {
     const idElement = e.target.closest('[data-cart-buy]');
     if (!idElement) throw "buyCart() error: [data-cart-buy] not found";
     const cartId = idElement.getAttribute('data-cart-buy');
     if (!cartId) throw "buyCart() error: [data-cart-buy] attribute empty or not found";
 
-    console.log(cartId);
+    const modalResult = await openModal("Придбання", "Ви збираєтеся придбати кошик. Підтверджуєте?", true);
+    if (!modalResult) {
+        return;
+    }
 
     fetch(`/Shop/CloseCart/${cartId}`, {
         method: 'DELETE',
@@ -110,7 +119,6 @@ function buyCart(e) {
     }).then(r => r.json()).then(j => {
         console.log(j);
         if (j.status < 300) {
-            alert('Кошик придбано.')
             window.location.reload();
             return;
         }
@@ -119,6 +127,47 @@ function buyCart(e) {
             return;
         }
     });
+}
+
+async function repeatCart(e) {
+    e.stopPropagation();
+    const idElement = e.target.closest('[data-cart-repeat]');
+    const cartId = idElement.getAttribute('data-cart-repeat');
+
+    fetch(`/Shop/RepeatCart/${cartId}`, {
+        method: "POST",
+    })
+        .then(r => r.json())
+        .then(async j => {
+            if (j.status == 401) {
+                await openModal("Помилка", "Увійдіть до системи для повторення замовлення.");
+                return;
+            }
+            else if (j.status == 400) {
+                await openModal("Помилка", "Невірний формат ідентифікатора кошика.");
+                return;
+            }
+            else if (j.status == 404) {
+                await openModal("Помилка", "Вказаний кошик не знайдено.");
+                return;
+            }
+            else if (j.status == 200) {
+                let message = "Ваше замовлення успішно повторено!";
+
+                if (j.warnings && j.warnings.length > 0) {
+                    message += "\n\n⚠️ Деякі товари були обмежені або відсутні:\n\n";
+                    message += j.warnings.join("\n");
+                }
+
+                await openModal("Успіх", message);
+                window.location.reload();
+                return;
+            }
+            else {
+                await openModal("Помилка", "Щось пішло не так!");
+                return;
+            }
+        });
 }
 
 function getBack(e) {
@@ -358,7 +407,7 @@ function openModal(title, message, isApproval = false) {
                                      <h5 class="modal-title">${title}</h5>
                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                  </div>
-                                 <div class="modal-body">
+                                 <div class="modal-body" style="white-space: pre-line;">
                                      <p>${message}</p>
                                  </div>
                                  <div class="modal-footer">

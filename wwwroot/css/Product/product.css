@@ -42,7 +42,7 @@
     white-space: nowrap;
 }
 
-.rates-header {
+.rates-header, .summary-rate {
     display: inline-block;
     font-size: 18px;
     font-weight: 500;

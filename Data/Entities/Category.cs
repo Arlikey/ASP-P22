@@ -9,7 +9,7 @@ namespace ASP_P22.Data.Entities
         public string Description { get; set; } = "";
         public string? ImagesCsv { get; set; }
         public string? Slug { get; set; }
-        [JsonIgnore]
+        //[JsonIgnore]
         public List<Product> Products { get; set; } = [];
     }
 }
