@@ -61,31 +61,46 @@ namespace ASP_P22.Controllers
 		}
 		public JsonResult Rate([FromBody] ShopRateFormModel rateModel)
 		{
-			Guid userId;
-			try { userId = Guid.Parse(rateModel.UserId); }
-			catch { return Json(new { status = 400, message = "Unparseble UUID 'userid'" }); }
+			if (!Guid.TryParse(rateModel.UserId, out Guid userId))
+			{
+				return Json(new { status = 400, errors = new { UserId = "Некоректний ідентифікатор користувача" } });
+			}
 
-			Guid productId;
-			try { productId = Guid.Parse(rateModel.ProductId); }
-			catch { return Json(new { status = 400, message = "Unparseble UUID 'productid'" }); }
+			if (!Guid.TryParse(rateModel.ProductId, out Guid productId))
+			{
+				return Json(new { status = 400, errors = new { ProductId = "Некоректний ідентифікатор товару" } });
+			}
 
 			var user = _dataContext.Users.Include(u => u.Rates).FirstOrDefault(u => u.Id == userId);
 			if (user is null)
 			{
-				return Json(new { status = 401, message = $"User '{userId}' unathorized" });
+				return Json(new { status = 401, errors = new { User = "Користувач не авторизований" } });
 			}
 
 			var product = _dataContext.Products.FirstOrDefault(p => p.Id == productId);
 			if (product is null)
 			{
-				return Json(new { status = 404, message = $"Product '{productId}' not found" });
+				return Json(new { status = 404, errors = new { Product = "Товар не знайдено" } });
+			}
+
+			bool hasRating = rateModel.Rating.HasValue;
+			bool hasComment = !string.IsNullOrWhiteSpace(rateModel.Comment);
+
+			if (!hasRating && !hasComment)
+			{
+				return Json(new { status = 400, errors = new { Rating = "Оцінка або коментар мають бути вказані." } });
+			}
+
+			if (hasComment && rateModel.Comment.Length < 5)
+			{
+				return Json(new { status = 400, errors = new { Comment = "Коментар має бути не коротше 5 символів." } });
 			}
 
 			var givenRate = user.Rates?.FirstOrDefault(r => r.ProductId == productId);
 			if (givenRate is not null)
 			{
-				givenRate.Comment = rateModel.Comment;
-				givenRate.Rating = rateModel.Rating;
+				givenRate.Comment = hasComment ? rateModel.Comment : givenRate.Comment;
+				givenRate.Rating = hasRating ? rateModel.Rating : givenRate.Rating;
 				givenRate.Moment = DateTime.Now;
 			}
 			else
@@ -93,10 +108,10 @@ namespace ASP_P22.Controllers
 				givenRate = new()
 				{
 					Id = Guid.NewGuid(),
-					UserId = Guid.Parse(rateModel.UserId),
-					ProductId = Guid.Parse(rateModel.ProductId),
-					Comment = rateModel.Comment,
-					Rating = rateModel.Rating,
+					UserId = userId,
+					ProductId = productId,
+					Comment = hasComment ? rateModel.Comment : null,
+					Rating = hasRating ? rateModel.Rating : null,
 					Moment = DateTime.Now
 				};
 				_dataContext.Rates.Add(givenRate);

@@ -61,14 +61,30 @@ else
 					</span>
 					@if (Model.IsUserCanRate)
 					{
-						<p>Оцінити: <input id="rate-rating" type="number" value="@(Model.UserRate?.Rating ?? 5)" /></p>
-						<p>
-							Коментувати: <textarea id="rate-comment">@Model.UserRate?.Comment</textarea>
-						</p>
 						@if (Model.UserRate != null)
 						{
-							<i>Ви залишили оцінку @Model.UserRate.Moment</i>
+							<i style="margin-bottom: 10px; display: block;">Ви залишили оцінку @Model.UserRate.Moment</i>
 						}
+						<div class="star-rate">
+							<input type="radio" id="star-5" name="Rate" value="5">
+							<label for="star-5"><i class="bi bi-star"></i></label>
+
+							<input type="radio" id="star-4" name="Rate" value="4">
+							<label for="star-4"><i class="bi bi-star"></i></label>
+
+							<input type="radio" id="star-3" name="Rate" value="3">
+							<label for="star-3"><i class="bi bi-star"></i></label>
+
+							<input type="radio" id="star-2" name="Rate" value="2">
+							<label for="star-2"><i class="bi bi-star"></i></label>
+
+							<input type="radio" id="star-1" name="Rate" value="1">
+							<label for="star-1"><i class="bi bi-star"></i></label>
+						</div>
+
+						<textarea id="rate-comment" class="form-control" placeholder="Ваш коментар..."></textarea>
+						<div id="rate-feedback" class="invalid-feedback"></div>
+
 						<button class="btn btn-outline-secondary" type="button" id="rate-button"
 								data-rate-user="@Model.AuthUserId" data-rate-product="@Model.Product.Id">
 							Зберегти коментар
@@ -84,7 +100,7 @@ else
 						Коментарі:
 					</span>
 					<div class="rates-container">
-						@foreach (var rate in Model.Product.Rates ?? [])
+						@foreach (var rate in Model.Product.Rates.OrderByDescending(r => r.Moment).ToList() ?? [])
 						{
 							if (rate.Comment is not null)
 							{

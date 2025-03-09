@@ -11,7 +11,14 @@
 		</div>
 		<b>@Model.User.Name</b>
 		<br />
-		<i class="rate-moment">@Model.Moment.ToString("MMM d, yyyy")</i>
+		@if (Model.Moment.Date == DateTime.Today)
+		{
+			<i class="rate-moment">@Model.Moment.ToShortTimeString()</i>
+		}
+		else
+		{
+			<i class="rate-moment">@Model.Moment.ToString("MMM d, yyyy")</i>
+		}
 	</div>
 	<div class="card-body text-secondary">
 		<h5 class="card-title">

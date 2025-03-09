@@ -46,32 +46,48 @@
 });
 
 function rateClick(e) {
+    e.preventDefault();
+
     const btn = e.target.closest('[data-rate-user]');
     const userId = btn.getAttribute('data-rate-user');
     const productId = btn.getAttribute('data-rate-product');
+    const commentInput = document.getElementById("rate-comment");
+    const ratingInput = document.querySelector('input[name="Rate"]:checked');
 
-    const ta = document.getElementById('rate-comment');
-    if (!ta) throw "#rate-comment not found";
-    const comment = ta.value.trim();
+    const rating = ratingInput ? ratingInput.value : null;
+    const comment = commentInput.value.trim();
 
-    const input = document.getElementById('rate-rating');
-    if (!input) throw "#rate-rating not found";
-    const rating = input.value;
-
+    document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+    document.querySelectorAll(".invalid-feedback").innerText = "";
 
     fetch("/Shop/Rate", {
         method: "POST",
-        headers: {
-            'Content-Type': "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, productId, comment, rating })
-    }).then(r => r.json()).then(j => {
-        if (typeof j.status != "undefined" && j.status < 300) {
+    })
+        .then(r => r.json())
+        .then(j => {
+            if (j.status >= 400) {
+                if (j.errors.comment) {
+                    showError(commentInput, j.errors.comment);
+                }
+                if (j.errors.rating) {
+                    showError(document.querySelector(".star-rate"), j.errors.rating);
+                }
+                return;
+            }
             window.location.reload();
-        }
-    });
+        });
+}
 
-    console.log(userId, productId, comment, rating);
+function showError(input, message) {
+    input.classList.add("is-invalid");
+    const rateFeedback = input.parentNode.querySelector("#rate-feedback");
+    rateFeedback.innerText = message;
+}
+
+function starClick(e) {
+    const star = e.target;
 }
 
 async function cancelCart(e) {

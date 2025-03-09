@@ -55,3 +55,29 @@
     scrollbar-width: thin;
     padding: 10px;
 }
+
+#rate-button {
+    margin-top: 10px;
+}
+
+.star-rate {
+    direction: rtl;
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+.star-rate input[type="radio"] {
+    display: none;
+}
+
+.star-rate label {
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.star-rate label:hover,
+.star-rate label:hover ~ label,
+.star-rate input[type="radio"]:checked ~ label {
+    fill: orange;
+    color: orange;
+}
