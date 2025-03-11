@@ -12,6 +12,7 @@ namespace ASP_P22.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartDetail> CartDetails { get; set; }
         public DbSet<Rate> Rates { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
 
         public DataContext(DbContextOptions options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,6 +35,11 @@ namespace ASP_P22.Data
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products);
+
+            modelBuilder.Entity<Promotion>()
+                .HasMany(pm => pm.Products)
+                .WithMany(p => p.Promotions)
+                .UsingEntity(pmp => pmp.ToTable("ProductPromotion"));
 
             modelBuilder.Entity<UserAccess>().HasIndex(a => a.Login).IsUnique();
 
