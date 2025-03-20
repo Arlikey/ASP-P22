@@ -49,5 +49,10 @@ namespace ASP_P22.Controllers
 				Data = _dataAccessor.CategoryById(id)
 			};
 		}
+		/*[HttpGet("{id}")]
+		public RestResponseModel ProductById(string id)
+		{
+
+		}*/
 	}
 }

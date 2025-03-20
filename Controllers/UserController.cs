@@ -22,16 +22,18 @@ namespace ASP_P22.Controllers
         IConfiguration configuration,
         ILogger<UserController> logger,
         IStorageService storageService,
-        ISlugifyService slugifyService) : Controller
+        ISlugifyService slugifyService,
+        DataAccessor dataAccessor) : Controller
     {
         private readonly DataContext _dataContext = dataContext;
         private readonly IKdfService _kdfService = kdfService;
-        private readonly IRandomService _randomService = randomService;
         private readonly IConfiguration _configuration = configuration;
+        private readonly IRandomService _randomService = randomService;
         private readonly ILogger<UserController> _logger = logger;
         private readonly IStorageService _storageService = storageService;
         private readonly ISlugifyService _slugifyService = slugifyService;
-        public IActionResult Index()
+		private readonly DataAccessor _dataAccessor = dataAccessor;
+		public IActionResult Index()
         {
             UserSignUpPageModel pageModel = new();
             if (HttpContext.Session.Keys.Contains("formModel"))
@@ -155,37 +157,18 @@ namespace ASP_P22.Controllers
         [HttpGet]
         public JsonResult Authenticate()
         {
-            string authHeader = Request.Headers.Authorization.ToString();
-            if (string.IsNullOrEmpty(authHeader))
+            try
             {
-                return AuthError("Потрібен заголовок авторизації.");
-            }
-            string authScheme = "Basic ";
-            if (!authHeader.StartsWith(authScheme))
+				var access = _dataAccessor.BasicAuthenticate();
+				HttpContext.Session.SetString("authUser",
+					JsonSerializer.Serialize(access.User));
+				return Json("Ok");
+			}
+            catch (Exception ex)
             {
-                return AuthError($"Помилка схеми авторизації: потрібна '{authScheme}'.");
+                return AuthError(ex.Message);
             }
-            string credentials = authHeader[authScheme.Length..];
-            string authData = Encoding.UTF8.GetString(Base64UrlTextEncoder.Decode(credentials));
-            string[] parts = authData.Split(':', 2);
-            if (parts.Length != 2)
-            {
-                return AuthError($"Облікові дані авторизації неправильні.");
-            }
-            var access = _dataContext.Accesses.Include(a => a.User).FirstOrDefault(a => a.Login == parts[0]);
-            if (access == null)
-            {
-                return AuthError($"Авторизацію відхилено.");
-            }
-            var (iterationCount, dkLength) = KdfSettings();
-            string dk1 = _kdfService.Dk(parts[1], access.Salt, iterationCount, dkLength);
-            if (dk1 != access.DK)
-            {
-                return AuthError($"Авторизацію відхилено.");
-            }
-            HttpContext.Session.SetString("authUser",
-                JsonSerializer.Serialize(access.User));
-            return Json("Ok");
+            
         }
         public RedirectToActionResult SignUp([FromForm] UserSignUpFormModel formModel)
         {

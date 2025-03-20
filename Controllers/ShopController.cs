@@ -14,16 +14,18 @@ using System.Text.Json;
 namespace ASP_P22.Controllers
 {
 	public class ShopController(DataContext dataContext,
-		IStorageService storageService) : Controller
+		IStorageService storageService, DataAccessor dataAccessor) : Controller
 	{
+		private readonly DataAccessor _dataAccessor = dataAccessor;
 		private readonly IStorageService _storageService = storageService;
 		private readonly DataContext _dataContext = dataContext;
 		public IActionResult Index()
 		{
-			ShopIndexPageModel model = new()
+			/*ShopIndexPageModel model = new()
 			{
 				Categories = [.. _dataContext.Categories]
-			};
+			};*/
+			ShopIndexPageModel model = _dataAccessor.CategoriesList();
 			if (HttpContext.Session.Keys.Contains("productModelErrors"))
 			{
 				model.Errors = JsonSerializer.Deserialize<Dictionary<string, string>>(
@@ -39,25 +41,7 @@ namespace ASP_P22.Controllers
 		}
 		public ViewResult Product([FromRoute] string id)
 		{
-			string? authUserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
-
-			ShopProductPageModel model = new()
-			{
-				Product = _dataContext
-				.Products
-				.Include(p => p.Category)
-					.ThenInclude(c => c.Products)
-				.Include(p => p.Rates)
-					.ThenInclude(r => r.User)
-				.FirstOrDefault(p => p.Slug == id || p.Id.ToString() == id),
-				IsUserCanRate = authUserId != null && _dataContext
-					.CartDetails
-					.Any(cd => (cd.ProductId.ToString() == id || cd.Product.Slug == id) && cd.Cart.UserId.ToString() == authUserId),
-				UserRate = authUserId == null ? null : _dataContext.Rates.FirstOrDefault(r => (r.ProductId.ToString() == id || r.Product.Slug == id) && r.UserId.ToString() == authUserId),
-				AuthUserId = authUserId,
-				Categories = [.. _dataContext.Categories]
-			};
-			return View(model);
+			return View(_dataAccessor.ProductById(id));
 		}
 		public JsonResult Rate([FromBody] ShopRateFormModel rateModel)
 		{

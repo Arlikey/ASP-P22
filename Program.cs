@@ -15,7 +15,9 @@ builder.Services.AddCors(options =>
 	options.AddDefaultPolicy(
 		policy =>
 		{
-			policy.WithOrigins("http://localhost:3000");
+			policy
+            .WithOrigins("http://localhost:3000")
+            .WithHeaders("Authorization");
 		});
 });
 
@@ -28,6 +30,7 @@ builder.Services.AddSingleton<ITimeService, TimeService>();
 builder.Services.AddSingleton<IKdfService, PbKdf1Service>();
 builder.Services.AddSingleton<IStorageService, LocalStorageService>();
 builder.Services.AddSingleton<ISlugifyService, TrasliterationSlugifyService>();
+builder.Services.AddHttpContextAccessor();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
