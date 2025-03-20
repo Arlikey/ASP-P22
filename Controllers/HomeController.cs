@@ -68,7 +68,11 @@ namespace ASP_P22.Controllers
             ViewData["db-info"] = $"Users: {_dataContext.Users.Count()}, Accesses: {_dataContext.Accesses.Count()}";
             return View();
         }
-        public IActionResult Privacy()
+		public IActionResult Rest()
+		{
+			return View();
+		}
+		public IActionResult Privacy()
         {
             return View();
         }
