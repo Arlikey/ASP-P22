@@ -96,24 +96,8 @@ namespace ASP_P22.Controllers
             string? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             if (userId != null)
             {
-                Guid uid = Guid.Parse(userId);
-                if(id == null)
-                {
-                    model.ActiveCart = _dataContext
-                    .Carts
-                    .Include(c => c.CartDetails)
-                    .ThenInclude(cd => cd.Product)
-                    .FirstOrDefault(c => c.UserId == uid && c.MomentCancel == null && c.MomentBuy == null);
-                }
-                else
-                {
-                    model.ActiveCart = _dataContext
-                    .Carts
-                    .Include(c => c.CartDetails)
-                    .ThenInclude(cd => cd.Product)
-                    .FirstOrDefault(c => c.Id.ToString() == id);
-                }
-            }
+                model.ActiveCart = _dataAccessor.GetCart(userId, id);
+			}
 
             return View(model);
         }

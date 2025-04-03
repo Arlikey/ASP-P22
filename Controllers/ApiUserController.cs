@@ -1,4 +1,5 @@
 ﻿using ASP_P22.Data;
+using ASP_P22.Data.Entities;
 using ASP_P22.Models;
 using ASP_P22.Services.Storage;
 using Microsoft.AspNetCore.Http;
@@ -26,10 +27,10 @@ namespace ASP_P22.Controllers
 					{ "dataType", "object" }
 				}
 			};
-
+			UserAccess? access = null;
 			try
 			{
-				model.Data = _dataAccessor.BasicAuthenticate();
+				access = _dataAccessor.BasicAuthenticate();
 			}
 			catch (Exception ex) 
 			{
@@ -37,7 +38,18 @@ namespace ASP_P22.Controllers
 				model.Status.Phrase = "Internal Server Error";
 				model.Status.isSuccess = false;
 				model.Description = ex.Message;
+				return model;
 			}
+			if(access == null)
+			{
+				model.Status.Code = 401;
+				model.Status.Phrase = "Unauthorized";
+				model.Status.isSuccess = false;
+				model.Description = "Authentication failed";
+				return model;
+			}
+			AuthToken authToken = _dataAccessor.CreateTokenForUserAccess(access);
+			model.Data = authToken.Jti;
 			return model;
 		}
 	}

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -130,117 +131,27 @@ namespace ASP_P22.Controllers
 			{
 				return Json(new { status = 401, message = "Unauthorized" });
 			}
-			Guid uid = Guid.Parse(userId);
-
-			Guid productId;
-			try { productId = Guid.Parse(id); }
-			catch
+			try
 			{
-				return Json(new { status = 400, message = "UUID required" });
+				_dataAccessor.AddToCart(userId, id);
+				return Json(new { status = 201, message = "Created" });
 			}
-			var product = _dataContext.Products.FirstOrDefault(p => p.Id == productId);
-			if (product == null)
+			catch (Win32Exception ex)
 			{
-				return Json(new { status = 404, message = "Product not found" });
+				return Json(new { status = ex.ErrorCode, message = ex.Message });
 			}
-
-			var cart = _dataContext.Carts.FirstOrDefault(c => c.UserId == uid && c.MomentBuy == null && c.MomentCancel == null);
-			if (cart == null)
-			{
-				cart = new Data.Entities.Cart()
-				{
-					Id = Guid.NewGuid(),
-					MomentOpen = DateTime.Now,
-					UserId = uid,
-					Price = 0,
-				};
-				_dataContext.Carts.Add(cart);
-			}
-			var cd = _dataContext.CartDetails.FirstOrDefault(d => d.CartId == cart.Id && d.ProductId == product.Id);
-			if (cd != null)
-			{
-				cd.Quantity += 1;
-				cd.Price += product.Price;
-				cart.Price += product.Price;
-			}
-			else
-			{
-				cd = new Data.Entities.CartDetail()
-				{
-					Id = Guid.NewGuid(),
-					Moment = DateTime.Now,
-					CartId = cart.Id,
-					ProductId = productId,
-					Price = product.Price,
-					Quantity = 1
-				};
-				cart.Price += product.Price;
-				_dataContext.CartDetails.Add(cd);
-			}
-			_dataContext.SaveChanges();
-
-			return Json(new { status = 201, message = "Created" });
 		}
 		[HttpPatch]
 		public JsonResult ModifyCart([FromRoute] string id, [FromQuery] int delta)
 		{
-			string? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
-			if (userId == null)
-			{
-				return Json(new { status = 401, message = "Unauthorized" });
+			try { 
+				_dataAccessor.ModifyCart(id, delta);
+				return Json(new { status = 202, message = "Accepted" });
 			}
-			Guid cdId;
-			try
+			catch (Win32Exception ex) 
 			{
-				cdId = Guid.Parse(id);
+				return Json(new { status = ex.ErrorCode, message = ex.Message });			
 			}
-			catch
-			{
-				return Json(new { status = 400, message = "Id unrecognized" });
-			}
-			if (delta == 0)
-			{
-				return Json(new { status = 400, message = "Dummy action" });
-			}
-			var cartDetail = _dataContext
-				.CartDetails
-				.Include(cd => cd.Product)
-				.Include(cd => cd.Cart)
-				.FirstOrDefault(cd => cd.Id == cdId);
-			if (cartDetail == null)
-			{
-				return Json(new { status = 404, message = "Item not found" });
-			}
-
-			Guid uid = Guid.Parse(userId);
-			if (uid != cartDetail.Cart.UserId)
-			{
-				return Json(new { status = 403, message = "Resource does not belong to user" });
-			}
-
-			if (cartDetail.Quantity + delta < 0)
-			{
-				return Json(new { status = 422, message = "decrement too large" });
-			}
-
-			if (cartDetail.Quantity + delta > cartDetail.Product.Stock)
-			{
-				return Json(new { status = 406, message = "increment too large" });
-			}
-
-			if (cartDetail.Quantity + delta == 0)
-			{
-				cartDetail.Cart.Price += delta * cartDetail.Product.Price;
-				_dataContext.CartDetails.Remove(cartDetail);
-			}
-			else
-			{
-				cartDetail.Quantity += delta;
-				cartDetail.Price += delta * cartDetail.Product.Price;
-				cartDetail.Cart.Price += delta * cartDetail.Product.Price;
-			}
-			_dataContext.SaveChanges();
-			return Json(new { status = 202, message = "Accepted" });
 		}
 		[HttpDelete]
 		public JsonResult CloseCart([FromRoute] string id)

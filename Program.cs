@@ -67,6 +67,7 @@ app.UseAuthorization();
 app.UseSession();
 
 app.UseAuthSession();
+app.UseAuthToken();
 
 app.MapControllerRoute(
     name: "default",

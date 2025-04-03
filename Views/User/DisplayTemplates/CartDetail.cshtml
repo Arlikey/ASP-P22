@@ -10,7 +10,7 @@
 <div class="row cart-detail">
 	<a asp-controller="Shop" asp-action="Product" asp-route-id="@(Model.Product.Slug ?? Model.Product.Id.ToString())" class="col-9">
 		<div class="col-2">
-			<img src="/Storage/Item/@(Model.Product.ImagesCsv?.Split(',').FirstOrDefault() ?? "no-image.jpg")" />
+			<img src="@(Model.Product.ImagesCsv?.Split(',').FirstOrDefault() ?? "no-image.jpg")" />
 		</div>
 		<div class="col-2 name" id="product-name">@Model.Product.Name</div>
 		<div class="col-6 description">@Model.Product.Description</div>

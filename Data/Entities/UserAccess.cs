@@ -9,7 +9,10 @@ namespace ASP_P22.Data.Entities
         public string Login { get; set; }
         public string DK{ get; set; }
         public string Salt{ get; set; }
-        [JsonIgnore]
+
+        public Guid? RoleId { get; set; }
+		[JsonIgnore]
         public User User { get; set; }
+        public UserRole? Role { get; set; }
     }
 }

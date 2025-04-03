@@ -1,9 +1,13 @@
-﻿using ASP_P22.Models.Shop;
+﻿using ASP_P22.Data.Entities;
+using ASP_P22.Models.Shop;
+using ASP_P22.Models.User;
 using ASP_P22.Services.Kdf;
 using Azure.Core;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.ComponentModel;
 using System.Security.Claims;
 using System.Text;
 
@@ -16,6 +20,158 @@ namespace ASP_P22.Data
 		private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 		private readonly IKdfService _kdfService = kdfService;
 		private readonly IConfiguration _configuration = configuration;
+		public void AddToCart(string userId, string productId)
+		{
+			Guid userGuid;
+			try{ userGuid = Guid.Parse(userId); }
+			catch { throw new Win32Exception(400, "User ID is invalid UUID"); }
+
+			Guid productGuid;
+			try { productGuid = Guid.Parse(productId); }
+			catch { throw new Win32Exception(400, "Product ID is invalid UUID"); }
+
+			var product = _dataContext.Products.FirstOrDefault(p => p.Id == productGuid);
+			if (product == null)
+			{
+				throw new Win32Exception(404, "Product ID is not found");
+			}
+
+			var cart = _dataContext.Carts.FirstOrDefault(c => c.UserId == userGuid && c.MomentBuy == null && c.MomentCancel == null);
+			if (cart == null)
+			{
+				cart = new Data.Entities.Cart()
+				{
+					Id = Guid.NewGuid(),
+					MomentOpen = DateTime.Now,
+					UserId = userGuid,
+					Price = 0,
+				};
+				_dataContext.Carts.Add(cart);
+			}
+			var cd = _dataContext.CartDetails.FirstOrDefault(d => d.CartId == cart.Id && d.ProductId == product.Id);
+			if (cd != null)
+			{
+				cd.Quantity += 1;
+				cd.Price += product.Price;
+				cart.Price += product.Price;
+			}
+			else
+			{
+				cd = new Data.Entities.CartDetail()
+				{
+					Id = Guid.NewGuid(),
+					Moment = DateTime.Now,
+					CartId = cart.Id,
+					ProductId = product.Id,
+					Price = product.Price,
+					Quantity = 1
+				};
+				cart.Price += product.Price;
+				_dataContext.CartDetails.Add(cd);
+			}
+			_dataContext.SaveChanges();
+		}
+		public Cart? GetCart(string userId, string? cartId)
+		{
+			Guid userGuid;
+			try { userGuid = Guid.Parse(userId); }
+			catch { throw new Exception("User ID is invalid UUID"); }
+
+			Cart? cart;
+
+			if(cartId == null)
+			{
+				cart = _dataContext
+					.Carts
+					.Include(c => c.CartDetails)
+					.ThenInclude(cd => cd.Product)
+					.FirstOrDefault(c => c.UserId == userGuid && c.MomentCancel == null && c.MomentBuy == null);
+			}
+			else
+			{
+				Guid cartGuid;
+				try { cartGuid = Guid.Parse(cartId); }
+				catch { throw new Exception("Cart ID is invalid UUID"); }
+
+				cart = _dataContext
+						.Carts
+						.Include(c => c.CartDetails)
+						.ThenInclude(cd => cd.Product)
+						.FirstOrDefault(c => c.Id == cartGuid);
+			}
+
+			if (cart == null)
+			{
+				return null;
+			}
+			if(cart.UserId != userGuid)
+			{
+				throw new AccessViolationException("Forbidden");
+			}
+			cart = cart with
+			{
+				CartDetails = cart.CartDetails.Select(cd => cd with
+				{
+					Product = cd.Product with
+					{
+						ImagesCsv = cd.Product.ImagesCsv == null
+						? StoragePrefix + "no-image.jpg"
+						: string.Join(',', cd.Product.ImagesCsv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+					.Select(i => StoragePrefix + i))
+					}
+				}).ToList()
+			};
+			_dataContext.SaveChanges();
+			return cart;
+		}
+		public void ModifyCart(string id, int delta)
+		{
+			Guid cartDetailId;
+			try
+			{
+				cartDetailId = Guid.Parse(id);
+			}
+			catch
+			{
+				throw new Win32Exception(400, "Id unrecognized");
+			}
+			if (delta == 0)
+			{
+				throw new Win32Exception(400, "Dummy action");
+			}
+			var cartDetail = _dataContext
+				.CartDetails
+				.Include(cd => cd.Product)
+				.Include(cd => cd.Cart)
+				.FirstOrDefault(cd => cd.Id == cartDetailId);
+			if (cartDetail == null)
+			{
+				throw new Win32Exception(404, "Item not found");
+			}
+
+			if (cartDetail.Quantity + delta < 0)
+			{
+				throw new Win32Exception(422, "Decrement too large");
+			}
+
+			if (cartDetail.Quantity + delta > cartDetail.Product.Stock)
+			{
+				throw new Win32Exception(406, "Increment too large");
+			}
+
+			if (cartDetail.Quantity + delta == 0)
+			{
+				cartDetail.Cart.Price += delta * cartDetail.Product.Price;
+				_dataContext.CartDetails.Remove(cartDetail);
+			}
+			else
+			{
+				cartDetail.Quantity += delta;
+				cartDetail.Price += delta * cartDetail.Product.Price;
+				cartDetail.Cart.Price += delta * cartDetail.Product.Price;
+			}
+			_dataContext.SaveChanges();
+		}
 		public Data.Entities.UserAccess? BasicAuthenticate()
 		{
 			string? authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
@@ -47,6 +203,32 @@ namespace ASP_P22.Data
 				throw new Exception($"Авторизацію відхилено.");
 			}
 			return access;
+		}
+		public Entities.AuthToken CreateTokenForUserAccess(Entities.UserAccess ua)
+		{
+			int lifetime = _configuration.GetSection("AuthToken").GetSection("Lifetime").Get<int>();
+			var token = _dataContext.AuthTokens.FirstOrDefault(t => t.Sub == ua.Id && t.Exp > DateTime.Now);
+			if (token != null)
+			{
+				token.Exp = token.Exp.AddSeconds(lifetime);
+			}
+			else
+			{
+				token = new Entities.AuthToken()
+				{
+					Jti = Guid.NewGuid(),
+					Iss = "ASP_P22",
+					Sub = ua.Id,
+					Aud = null,
+					Iat = DateTime.Now,
+					Exp = DateTime.Now.AddSeconds(lifetime),
+					Nbf = null
+				};
+				_dataContext.AuthTokens.Add(token);
+			}
+			_dataContext.SaveChanges();
+
+			return token;
 		}
 		public ShopIndexPageModel CategoriesList()
 		{
@@ -95,7 +277,6 @@ namespace ASP_P22.Data
 
 			return model;
 		}
-
 		public ShopProductPageModel ProductById(string id)
 		{
 			string? authUserId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
