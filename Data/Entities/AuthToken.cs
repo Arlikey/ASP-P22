@@ -1,4 +1,6 @@
-﻿namespace ASP_P22.Data.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ASP_P22.Data.Entities
 {
 	public class AuthToken
 	{
@@ -10,6 +12,7 @@
 		public DateTime Exp { get; set; }
 		public DateTime? Nbf { get; set; }
 
+		[JsonIgnore]
 		public UserAccess UserAccess { get; set; }
 	}
 }

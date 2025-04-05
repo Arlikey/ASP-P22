@@ -196,7 +196,7 @@ async function deleteCartClick(e) {
     const cdElement = e.target.closest('[data-cart-detail-del]');
     const cdId = cdElement.getAttribute('data-cart-detail-del');
 
-    const productNameElement = e.target.closest('.card-detail')?.querySelector('#product-name');
+    const productNameElement = e.target.closest('.cart-detail')?.querySelector('#product-name');
     const productName = productNameElement.innerText;
 
     const modalResult = await openModal("Видалення", `Ви видаляєте позицію "${productName}" з кошику. Підтверджуєте?`, true);
@@ -230,7 +230,7 @@ async function editCartBlur(e) {
         const cdElement = e.target.closest('[data-cart-detail-qnt]');
         const cdId = cdElement.getAttribute('data-cart-detail-qnt');
 
-        const productNameElement = e.target.closest('.card-detail')?.querySelector('#product-name');
+        const productNameElement = e.target.closest('.cart-detail')?.querySelector('#product-name');
         const productName = productNameElement.innerText;
 
         const modalResult = await openModal("Зміна", `Ви змінюєте кількість замовлення "${productName}" з ${e.target.beforeEditing} до ${e.target.innerText} шт. Підтверджуєте?`, true);
@@ -298,7 +298,6 @@ function incrementCartClick(e) {
     fetch(`/Shop/ModifyCart/${cdId}?delta=1`, {
         method: 'PATCH',
     }).then(r => r.json()).then(j => {
-        console.log(j);
         if (j.status < 300) {
             window.location.reload();
             return;

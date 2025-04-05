@@ -73,6 +73,7 @@ namespace ASP_P22.Controllers
 			var res = restResponseModel;
 
 			string? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            Console.WriteLine(userId);
 			if (userId == null)
 			{
 				res.Status.Code = 401;

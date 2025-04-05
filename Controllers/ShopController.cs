@@ -150,7 +150,7 @@ namespace ASP_P22.Controllers
 			}
 			catch (Win32Exception ex) 
 			{
-				return Json(new { status = ex.ErrorCode, message = ex.Message });			
+				return Json(new { status = ex.NativeErrorCode, message = ex.Message });			
 			}
 		}
 		[HttpDelete]
